@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </radialGradient>
+
+    <linearGradient id="gradRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="50%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <linearGradient id="gradCross" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="40%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+
+    <linearGradient id="gradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dd3fc" />
+      <stop offset="40%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <linearGradient id="edgeHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
+    </linearGradient>
+
+    <filter id="shadowLeft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="10" dy="15" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    
+    <filter id="shadowCross" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="5" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="none" />
+
+  <g transform="translate(0, 15)">
+    
+    <polygon points="250,50 220,90 320,420 440,420" fill="url(#gradRight)" />
+    <polygon points="250,50 220,90 320,420 440,420" fill="none" stroke="url(#edgeHighlight)" stroke-width="1.5" />
+
+    <path d="M 108,330 L 133,280 Q 250,260 352,250 L 377,300 Q 250,310 108,330 Z" fill="url(#gradCross)" filter="url(#shadowCross)" />
+    <path d="M 108,330 L 133,280 Q 250,260 352,250 L 377,300 Q 250,310 108,330 Z" fill="none" stroke="url(#edgeHighlight)" stroke-width="1.5" />
+
+    <polygon points="250,50 280,90 180,420 60,420" fill="url(#gradLeft)" filter="url(#shadowLeft)" />
+    <polygon points="250,50 280,90 180,420 60,420" fill="none" stroke="url(#edgeHighlight)" stroke-width="2" />
+
+    <circle cx="250" cy="50" r="8" fill="#ffffff" filter="url(#glow)" opacity="0.8" />
+    <circle cx="250" cy="50" r="3" fill="#ffffff" />
+    
+  </g>
+</svg>
