@@ -37,6 +37,7 @@ function AiCopilotPanel() {
   const setOpen = useAiStore((state) => state.setOpen)
   const dismissError = useAiStore((state) => state.dismissError)
   const initialize = useAiStore((state) => state.initialize)
+  const updateContext = useAiStore((state) => state.updateContext)
 
   const rfqItems = useRfqDraftStore((state) => state.draft?.items || [])
 
@@ -77,17 +78,14 @@ function AiCopilotPanel() {
     if (!isOpen) return
 
     const items = rfqItemsRef.current
-    useAiStore.setState({
-      context: {
-        ...useAiStore.getState().context,
-        currentRfqItems: items.map((item) => ({
-          product_id: item.productId,
-          product_name: item.productName,
-          quantity: item.quantity,
-        })),
-      },
+    updateContext({
+      currentRfqItems: items.map((item) => ({
+        product_id: item.productId,
+        product_name: item.productName,
+        quantity: item.quantity,
+      })),
     })
-  }, [isOpen, rfqItems.length])
+  }, [isOpen, rfqItems.length, updateContext])
 
   React.useEffect(() => {
     if (!isOpen) return
