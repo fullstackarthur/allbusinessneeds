@@ -5,7 +5,7 @@ import { ROUTES } from '@/core/constants'
 import { HomePage } from '@/presentation/features/home'
 import { CategoriesPage } from '@/presentation/features/categories'
 import { AiCopilotPage } from '@/presentation/features/ai-copilot'
-import { RfqsPage } from '@/presentation/features/rfq'
+import { RfqPage, RfqHistoryPage } from '@/presentation/features/rfq'
 import { AccountPage } from '@/presentation/features/account'
 import { ProductDetailPage } from '@/presentation/features/product'
 import { ProductListingPage } from '@/presentation/features/product-listing'
@@ -27,8 +27,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.HOME, element: <HomePage /> },
       { path: ROUTES.CATEGORIES, element: <CategoriesPage /> },
       { path: ROUTES.AI_COPILOT, element: <AiCopilotPage /> },
-      { path: ROUTES.RFQS, element: <RfqsPage /> },
-      { path: ROUTES.RFQ_CREATE, element: <RfqsPage /> },
+      { path: ROUTES.RFQS, element: <RfqHistoryPage /> },
+      { path: '/rfq/review', element: <RfqPage /> },
       { path: ROUTES.ACCOUNT, element: <AccountPage /> },
       { path: ROUTES.PRODUCT, element: <ProductDetailPage /> },
       { path: '/products', element: <ProductListingPage /> },

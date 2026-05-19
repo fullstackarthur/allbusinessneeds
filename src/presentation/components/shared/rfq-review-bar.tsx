@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom'
-import { ROUTES } from '@/core/constants'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
 import { Button } from '@/shared/components/ui/button'
 import { FileText, ChevronRight, X, Minus } from 'lucide-react'
 import { formatCurrency } from '@/core/utils/helpers'
@@ -10,6 +9,8 @@ function RfqReviewBar() {
   const isOpen = useRfqDraftStore((state) => state.isOpen)
   const setOpen = useRfqDraftStore((state) => state.setOpen)
   const removeItem = useRfqDraftStore((state) => state.removeItem)
+  const workflowItems = useRfqWorkflowStore((state) => state.items)
+  const setStep = useRfqWorkflowStore((state) => state.setStep)
 
   const items = draft?.items || []
   const itemCount = items.length
@@ -17,14 +18,21 @@ function RfqReviewBar() {
     return sum + (item.targetPrice || 0) * item.quantity
   }, 0)
 
-  if (itemCount === 0 && !isOpen) return null
+  const hasWorkflowItems = workflowItems.length > 0
+  const displayCount = hasWorkflowItems ? workflowItems.length : itemCount
+
+  if (displayCount === 0 && !isOpen) return null
+
+  const workflowItemMap = new Map(workflowItems.map((i) => [i.product_id, i]))
 
   return (
     <>
       {/* Collapsed Bar */}
-      {!isOpen && itemCount > 0 && (
+      {!isOpen && displayCount > 0 && (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true)
+          }}
           className="fixed bottom-16 left-3 right-3 z-30 flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 shadow-lg lg:bottom-4 lg:left-auto lg:right-6 lg:w-80"
         >
           <div className="flex items-center gap-3">
@@ -33,7 +41,7 @@ function RfqReviewBar() {
             </div>
             <div className="text-left">
               <p className="text-sm font-medium text-text">
-                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                {displayCount} {displayCount === 1 ? 'item' : 'items'}
               </p>
               <p className="text-xs text-text-muted">Tap to review RFQ</p>
             </div>
@@ -43,7 +51,7 @@ function RfqReviewBar() {
       )}
 
       {/* Expanded Drawer */}
-      {isOpen && itemCount > 0 && (
+      {isOpen && displayCount > 0 && (
         <div className="fixed inset-0 z-50 lg:pointer-events-none">
           <div
             className="absolute inset-0 bg-overlay lg:hidden"
@@ -60,7 +68,7 @@ function RfqReviewBar() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-text">RFQ Draft</p>
-                    <p className="text-xs text-text-muted">{itemCount} items</p>
+                    <p className="text-xs text-text-muted">{displayCount} items</p>
                   </div>
                 </div>
                 <button
@@ -74,34 +82,39 @@ function RfqReviewBar() {
 
               {/* Items List */}
               <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ maxHeight: '40vh' }}>
-                {items.map((item) => (
-                  <div
-                    key={item.productId}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text truncate">
-                        {item.productName}
-                      </p>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-text-muted">
-                        <span>Qty: {item.quantity}</span>
-                        {item.targetPrice && (
-                          <>
-                            <span>&middot;</span>
-                            <span>{formatCurrency(item.targetPrice)}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeItem(item.productId)}
-                      className="rounded-md p-1.5 text-text-muted hover:bg-destructive-muted hover:text-destructive transition-colors"
-                      aria-label={`Remove ${item.productName}`}
+                {items.map((item) => {
+                  const workflowItem = workflowItemMap.get(item.productId)
+                  const quantity = workflowItem?.quantity || item.quantity
+
+                  return (
+                    <div
+                      key={item.productId}
+                      className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3"
                     >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text truncate">
+                          {item.productName}
+                        </p>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-text-muted">
+                          <span>Qty: {quantity}</span>
+                          {item.targetPrice && (
+                            <>
+                              <span>&middot;</span>
+                              <span>{formatCurrency(item.targetPrice)}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeItem(item.productId)}
+                        className="rounded-md p-1.5 text-text-muted hover:bg-destructive-muted hover:text-destructive transition-colors"
+                        aria-label={`Remove ${item.productName}`}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Footer */}
@@ -114,12 +127,16 @@ function RfqReviewBar() {
                     </span>
                   </div>
                 )}
-                <Link to={ROUTES.RFQS}>
-                  <Button className="w-full">
-                    Submit for Quotation
-                    <ChevronRight className="ml-1.5 h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button
+                  onClick={() => {
+                    setOpen(false)
+                    setStep('review')
+                  }}
+                  className="w-full"
+                >
+                  Review & Submit
+                  <ChevronRight className="ml-1.5 h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
