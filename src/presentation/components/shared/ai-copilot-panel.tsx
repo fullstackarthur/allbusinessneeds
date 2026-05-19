@@ -7,6 +7,8 @@ import type { AiProduct } from '@/core/types/ai-schemas'
 import { Send, Sparkles, X, AlertCircle, RotateCcw } from 'lucide-react'
 import * as React from 'react'
 
+const EMPTY_ITEMS: never[] = []
+
 interface QuickPrompt {
   label: string
   prompt: string
@@ -39,7 +41,7 @@ function AiCopilotPanel() {
   const initialize = useAiStore((state) => state.initialize)
   const updateContext = useAiStore((state) => state.updateContext)
 
-  const rfqItems = useRfqDraftStore((state) => state.draft?.items || [])
+  const rfqItems = useRfqDraftStore((state) => state.draft?.items ?? EMPTY_ITEMS)
 
   const [currentPath, setCurrentPath] = React.useState('')
 

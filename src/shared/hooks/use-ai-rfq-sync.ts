@@ -2,8 +2,10 @@ import * as React from 'react'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useAiStore } from '@/presentation/stores/ai-store'
 
+const EMPTY_ITEMS: never[] = []
+
 export function useAiRfqSync() {
-  const rfqItems = useRfqDraftStore((state) => state.draft?.items || [])
+  const rfqItems = useRfqDraftStore((state) => state.draft?.items ?? EMPTY_ITEMS)
   const updateContext = useAiStore((state) => state.updateContext)
   const prevRef = React.useRef('')
 

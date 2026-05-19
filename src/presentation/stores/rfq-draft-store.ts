@@ -2,6 +2,9 @@ import { create } from 'zustand'
 import type { RfqItem } from '@/domain/entities'
 import { generateId } from '@/core/utils/helpers'
 
+const EMPTY_ITEMS: RfqItem[] = []
+export { EMPTY_ITEMS }
+
 interface RfqDraftState {
   draft: {
     id: string
@@ -111,6 +114,6 @@ export const useRfqDraftStore = create<RfqDraftState>((set, get) => ({
 
   setOpen: (open: boolean) => set({ isOpen: open }),
 
-  getItems: () => get().draft?.items || [],
+  getItems: () => get().draft?.items ?? EMPTY_ITEMS,
   getItemCount: () => get().draft?.items.length || 0,
 }))

@@ -24,7 +24,7 @@ const navItems = [
 
 function MobileBottomNav() {
   const location = useLocation()
-  const itemCount = useRfqDraftStore((state) => state.getItemCount())
+  const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
 
@@ -87,7 +87,7 @@ function MobileBottomNav() {
 
 function DesktopHeader() {
   const location = useLocation()
-  const itemCount = useRfqDraftStore((state) => state.getItemCount())
+  const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)

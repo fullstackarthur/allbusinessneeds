@@ -3,7 +3,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { StepProgress, StepProgressMobile } from '@/shared/components/ui/step-progress'
 import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useRfqDraftStore, EMPTY_ITEMS } from '@/presentation/stores/rfq-draft-store'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ROUTES } from '@/core/constants'
 import {
@@ -30,7 +30,7 @@ function RfqCartPage() {
   const updateQuantity = useRfqWorkflowStore((state) => state.updateQuantity)
   const setStep = useRfqWorkflowStore((state) => state.setStep)
   const getEstimatedTotal = useRfqWorkflowStore((state) => state.getEstimatedTotal)
-  const draftItems = useRfqDraftStore((state) => state.draft?.items || [])
+  const draftItems = useRfqDraftStore((state) => state.draft?.items ?? EMPTY_ITEMS)
   const workflowItems = useRfqWorkflowStore((state) => state.items)
 
   const syncedRef = React.useRef<string>('')

@@ -1,4 +1,4 @@
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useRfqDraftStore, EMPTY_ITEMS } from '@/presentation/stores/rfq-draft-store'
 import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
 import { Button } from '@/shared/components/ui/button'
 import { FileText, ChevronRight, X, Minus } from 'lucide-react'
@@ -12,7 +12,7 @@ function RfqReviewBar() {
   const workflowItems = useRfqWorkflowStore((state) => state.items)
   const setStep = useRfqWorkflowStore((state) => state.setStep)
 
-  const items = draft?.items || []
+  const items = draft?.items ?? EMPTY_ITEMS
   const itemCount = items.length
   const estimatedTotal = items.reduce((sum, item) => {
     return sum + (item.targetPrice || 0) * item.quantity
