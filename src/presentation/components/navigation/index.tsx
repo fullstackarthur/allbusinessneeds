@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { ROUTES } from '@/core/constants'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import {
   Home,
   Grid3X3,
@@ -65,6 +66,7 @@ function MobileBottomNav() {
 function DesktopHeader() {
   const location = useLocation()
   const itemCount = useRfqDraftStore((state) => state.getItemCount())
+  const setSearchOpen = useUiStore((state) => state.setSearchOpen)
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-sm">
@@ -103,10 +105,15 @@ function DesktopHeader() {
 
         <div className="flex items-center gap-2">
           <button
-            className="rounded-md p-2 text-text-muted hover:bg-surface-hover hover:text-text transition-colors"
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-muted hover:border-border-strong hover:text-text transition-colors"
             aria-label="Search"
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search...</span>
+            <kbd className="hidden h-5 items-center gap-0.5 rounded border border-border bg-surface-active px-1.5 text-[10px] font-medium sm:inline-flex">
+              Ctrl K
+            </kbd>
           </button>
 
           <Link

@@ -49,6 +49,9 @@ export { Toaster } from './toaster'
 export { ProductCard } from './product-card'
 export type { ProductCardProps } from './product-card'
 
+export { ProductCardCompact } from './product-card-compact'
+export { ProductCardList } from './product-card-list'
+
 export { EmptyState } from './empty-state'
 
 export {
@@ -61,3 +64,5 @@ export {
 } from './select'
 
 export { Checkbox } from './checkbox'
+
+export { FilterBar, FilterDrawer } from './filter-system'

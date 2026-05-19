@@ -1,38 +1,20 @@
-import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { EmptyState } from '@/shared/components/ui/empty-state'
-import { ListSkeleton } from '@/shared/components/ui/skeleton'
 import { Grid3X3, ChevronRight } from 'lucide-react'
 
-interface CategoryItem {
-  id: string
-  name: string
-  slug: string
-  description: string
-  productCount: number
-  icon: React.ReactNode
-}
-
-const categories: CategoryItem[] = [
-  { id: '1', name: 'Paper & Printing', slug: 'paper', description: 'Copy paper, notebooks, printing supplies', productCount: 145, icon: null },
-  { id: '2', name: 'Writing Instruments', slug: 'writing', description: 'Pens, pencils, markers, highlighters', productCount: 98, icon: null },
-  { id: '3', name: 'Filing & Organization', slug: 'organization', description: 'Folders, binders, desk organizers', productCount: 76, icon: null },
-  { id: '4', name: 'Desk Accessories', slug: 'desk', description: 'Staplers, tape, scissors, rulers', productCount: 112, icon: null },
-  { id: '5', name: 'Technology', slug: 'technology', description: 'USB drives, cables, batteries', productCount: 64, icon: null },
-  { id: '6', name: 'Breakroom', slug: 'breakroom', description: 'Coffee, tea, snacks, supplies', productCount: 43, icon: null },
-  { id: '7', name: 'Cleaning & Hygiene', slug: 'cleaning', description: 'Sanitizers, tissues, cleaning supplies', productCount: 58, icon: null },
-  { id: '8', name: 'Shipping & Mailing', slug: 'shipping', description: 'Envelopes, boxes, tape, labels', productCount: 37, icon: null },
+const categories = [
+  { id: '1', name: 'Paper & Printing', slug: 'paper', description: 'Copy paper, notebooks, printing supplies', productCount: 145 },
+  { id: '2', name: 'Writing Instruments', slug: 'writing', description: 'Pens, pencils, markers, highlighters', productCount: 98 },
+  { id: '3', name: 'Filing & Organization', slug: 'organization', description: 'Folders, binders, desk organizers', productCount: 76 },
+  { id: '4', name: 'Desk Accessories', slug: 'desk', description: 'Staplers, tape, scissors, rulers', productCount: 112 },
+  { id: '5', name: 'Technology', slug: 'technology', description: 'USB drives, cables, batteries', productCount: 64 },
+  { id: '6', name: 'Breakroom', slug: 'breakroom', description: 'Coffee, tea, snacks, supplies', productCount: 43 },
+  { id: '7', name: 'Cleaning & Hygiene', slug: 'cleaning', description: 'Sanitizers, tissues, cleaning supplies', productCount: 58 },
+  { id: '8', name: 'Shipping & Mailing', slug: 'shipping', description: 'Envelopes, boxes, tape, labels', productCount: 37 },
 ]
 
 function CategoriesPage() {
-  const [loading, setLoading] = React.useState(true)
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600)
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <div className="space-y-6">
       <div>
@@ -42,9 +24,7 @@ function CategoriesPage() {
         </p>
       </div>
 
-      {loading ? (
-        <ListSkeleton count={8} />
-      ) : categories.length === 0 ? (
+      {categories.length === 0 ? (
         <EmptyState
           title="No categories available"
           icon={<Grid3X3 className="h-8 w-8" />}

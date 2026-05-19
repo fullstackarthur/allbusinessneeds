@@ -7,8 +7,10 @@ import { CategoriesPage } from '@/presentation/features/categories'
 import { AiCopilotPage } from '@/presentation/features/ai-copilot'
 import { RfqsPage } from '@/presentation/features/rfq'
 import { AccountPage } from '@/presentation/features/account'
-import { ProductPage } from '@/presentation/features/product'
-import { CartPage } from '@/presentation/features/cart'
+import { ProductDetailPage } from '@/presentation/features/product'
+import { ProductListingPage } from '@/presentation/features/product-listing'
+import { SearchPage } from '@/presentation/features/search'
+import { BrandsPage } from '@/presentation/features/brands'
 
 export const router = createBrowserRouter([
   {
@@ -28,8 +30,12 @@ export const router = createBrowserRouter([
       { path: ROUTES.RFQS, element: <RfqsPage /> },
       { path: ROUTES.RFQ_CREATE, element: <RfqsPage /> },
       { path: ROUTES.ACCOUNT, element: <AccountPage /> },
-      { path: ROUTES.PRODUCT, element: <ProductPage /> },
-      { path: ROUTES.CART, element: <CartPage /> },
+      { path: ROUTES.PRODUCT, element: <ProductDetailPage /> },
+      { path: '/products', element: <ProductListingPage /> },
+      { path: '/categories/:slug', element: <ProductListingPage /> },
+      { path: '/search', element: <SearchPage /> },
+      { path: '/brands', element: <BrandsPage /> },
+      { path: '/brands/:id', element: <ProductListingPage /> },
     ],
   },
 ])

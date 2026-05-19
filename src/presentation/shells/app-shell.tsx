@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { MobileBottomNav, DesktopHeader } from '@/presentation/components/navigation'
 import { RfqReviewBar } from '@/presentation/components/shared/rfq-review-bar'
+import { SearchOverlay } from '@/presentation/components/shared/search-overlay'
 
 function AppShell() {
   return (
@@ -13,6 +14,7 @@ function AppShell() {
       </main>
       <MobileBottomNav />
       <RfqReviewBar />
+      <SearchOverlay />
     </div>
   )
 }
