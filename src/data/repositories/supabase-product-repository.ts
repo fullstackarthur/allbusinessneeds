@@ -56,7 +56,10 @@ export class SupabaseProductRepository implements ProductRepository {
 
     const { data, count, error } = await query.range(from, to)
 
-    if (error) throw new Error(`Supabase query failed: ${error.message}`)
+    if (error) {
+      console.error('[SupabaseProductRepository.getAll] Query error:', error)
+      throw new Error(`Supabase query failed: ${error.message}`)
+    }
 
     return {
       products: (data as ProductListingDto[] || []).map(SupabaseMapper.toProductEntity),
@@ -73,7 +76,10 @@ export class SupabaseProductRepository implements ProductRepository {
       .eq('id', id)
       .single()
 
-    if (error) throw new Error(`Product not found: ${error.message}`)
+    if (error) {
+      console.error('[SupabaseProductRepository.getById] Query error:', error)
+      throw new Error(`Product not found: ${error.message}`)
+    }
 
     return SupabaseMapper.toProductEntity(data as ProductDetailDto)
   }
@@ -94,7 +100,10 @@ export class SupabaseProductRepository implements ProductRepository {
       .neq('id', id)
       .limit(limit)
 
-    if (error) throw new Error(`Related products query failed: ${error.message}`)
+    if (error) {
+      console.error('[SupabaseProductRepository.getRelated] Query error:', error)
+      throw new Error(`Related products query failed: ${error.message}`)
+    }
 
     return (data as ProductListingDto[] || []).map(SupabaseMapper.toProductEntity)
   }
@@ -106,7 +115,10 @@ export class SupabaseProductRepository implements ProductRepository {
       .ilike('title', `%${query}%`)
       .limit(limit)
 
-    if (error) throw new Error(`Search query failed: ${error.message}`)
+    if (error) {
+      console.error('[SupabaseProductRepository.search] Query error:', error)
+      throw new Error(`Search query failed: ${error.message}`)
+    }
 
     return (data as ProductListingDto[] || []).map(SupabaseMapper.toProductEntity)
   }

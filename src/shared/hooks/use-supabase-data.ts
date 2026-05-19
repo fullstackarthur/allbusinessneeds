@@ -1,22 +1,32 @@
 import * as React from 'react'
-import type { Product } from '@/domain/entities'
-import { useCases } from '@/core/container'
+import type { Product, Category } from '@/domain/entities'
+
+const EMPTY_PRODUCTS: Product[] = []
+const EMPTY_CATEGORIES: Category[] = []
+
+function getUseCases() {
+  return import('@/core/container').then((m) => m.useCases)
+}
 
 export function useProducts(filters?: { category?: string; page?: number; limit?: number }) {
-  const [products, setProducts] = React.useState<Product[]>([])
+  const [products, setProducts] = React.useState<Product[]>(EMPTY_PRODUCTS)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [total, setTotal] = React.useState(0)
   const [totalPages, setTotalPages] = React.useState(0)
+
+  const category = filters?.category
+  const page = filters?.page
+  const limit = filters?.limit
 
   React.useEffect(() => {
     let cancelled = false
     setLoading(true)
     setError(null)
 
-    useCases.products.getAll
-      .execute(filters)
-      .then((result: { products: Product[]; total: number; totalPages: number; page: number }) => {
+    getUseCases()
+      .then((useCases) => useCases.products.getAll.execute({ category, page, limit }))
+      .then((result) => {
         if (!cancelled) {
           setProducts(result.products)
           setTotal(result.total)
@@ -25,8 +35,10 @@ export function useProducts(filters?: { category?: string; page?: number; limit?
         }
       })
       .catch((err: unknown) => {
+        console.error('[useProducts] Failed:', err)
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Failed to load products')
+          setProducts(EMPTY_PRODUCTS)
           setLoading(false)
         }
       })
@@ -34,7 +46,7 @@ export function useProducts(filters?: { category?: string; page?: number; limit?
     return () => {
       cancelled = true
     }
-  }, [filters?.category, filters?.page, filters?.limit])
+  }, [category, page, limit])
 
   return { products, loading, error, total, totalPages }
 }
@@ -45,14 +57,17 @@ export function useProductById(id: string) {
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    if (!id) return
+    if (!id) {
+      setLoading(false)
+      return
+    }
     let cancelled = false
     setLoading(true)
     setError(null)
 
-    useCases.products.getById
-      .execute(id)
-      .then((result: Product) => {
+    getUseCases()
+      .then((useCases) => useCases.products.getById.execute(id))
+      .then((result) => {
         if (!cancelled) {
           setProduct(result)
           setLoading(false)
@@ -74,19 +89,22 @@ export function useProductById(id: string) {
 }
 
 export function useRelatedProducts(productId: string, limit = 4) {
-  const [related, setRelated] = React.useState<Product[]>([])
+  const [related, setRelated] = React.useState<Product[]>(EMPTY_PRODUCTS)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    if (!productId) return
+    if (!productId) {
+      setLoading(false)
+      return
+    }
     let cancelled = false
     setLoading(true)
     setError(null)
 
-    useCases.products.getRelated
-      .execute(productId, limit)
-      .then((result: Product[]) => {
+    getUseCases()
+      .then((useCases) => useCases.products.getRelated.execute(productId, limit))
+      .then((result) => {
         if (!cancelled) {
           setRelated(result)
           setLoading(false)
@@ -108,13 +126,14 @@ export function useRelatedProducts(productId: string, limit = 4) {
 }
 
 export function useSearchProducts(query: string, limit = 10) {
-  const [results, setResults] = React.useState<Product[]>([])
+  const [results, setResults] = React.useState<Product[]>(EMPTY_PRODUCTS)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (!query.trim()) {
-      setResults([])
+      setResults(EMPTY_PRODUCTS)
+      setLoading(false)
       return
     }
 
@@ -122,9 +141,9 @@ export function useSearchProducts(query: string, limit = 10) {
     setLoading(true)
     setError(null)
 
-    useCases.products.search
-      .execute(query, limit)
-      .then((result: Product[]) => {
+    getUseCases()
+      .then((useCases) => useCases.products.search.execute(query, limit))
+      .then((result) => {
         if (!cancelled) {
           setResults(result)
           setLoading(false)
@@ -146,9 +165,7 @@ export function useSearchProducts(query: string, limit = 10) {
 }
 
 export function useCategories() {
-  const [categories, setCategories] = React.useState<
-    Array<{ id: string; name: string; slug: string; productCount: number }>
-  >([])
+  const [categories, setCategories] = React.useState<Category[]>(EMPTY_CATEGORIES)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -157,11 +174,11 @@ export function useCategories() {
     setLoading(true)
     setError(null)
 
-    useCases.categories.getAll
-      .execute()
-      .then((result: Array<{ id: string; name: string; slug: string }>) => {
+    getUseCases()
+      .then((useCases) => useCases.categories.getAll.execute())
+      .then((result) => {
         if (!cancelled) {
-          setCategories(result.map((c: { id: string; name: string; slug: string }) => ({ ...c, productCount: 0 })))
+          setCategories(result)
           setLoading(false)
         }
       })
@@ -186,14 +203,17 @@ export function useCategoryBySlug(slug: string) {
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    if (!slug) return
+    if (!slug) {
+      setLoading(false)
+      return
+    }
     let cancelled = false
     setLoading(true)
     setError(null)
 
-    useCases.categories.getBySlug
-      .execute(slug)
-      .then((result: { id: string; name: string; slug: string }) => {
+    getUseCases()
+      .then((useCases) => useCases.categories.getBySlug.execute(slug))
+      .then((result) => {
         if (!cancelled) {
           setCategory({ id: result.id, name: result.name, slug: result.slug })
           setLoading(false)

@@ -7,6 +7,14 @@ import { ErrorBoundary } from '@/shared/components/error-boundary'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import '@/app/styles/globals.css'
 
+window.addEventListener('error', (e) => {
+  console.error('[Global Error]', e.error || e.message)
+})
+
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[Unhandled Rejection]', e.reason)
+})
+
 function KeyboardShortcuts() {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
