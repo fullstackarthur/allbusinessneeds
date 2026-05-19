@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { MobileBottomNav, DesktopHeader } from '@/presentation/components/navigation'
 import { RfqReviewBar } from '@/presentation/components/shared/rfq-review-bar'
 import { SearchOverlay } from '@/presentation/components/shared/search-overlay'
+import { AiCopilotPanel } from '@/presentation/components/shared/ai-copilot-panel'
 
 function AppShell() {
   return (
@@ -15,6 +16,7 @@ function AppShell() {
       <MobileBottomNav />
       <RfqReviewBar />
       <SearchOverlay />
+      <AiCopilotPanel />
     </div>
   )
 }

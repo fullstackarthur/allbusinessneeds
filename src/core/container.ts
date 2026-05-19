@@ -32,9 +32,9 @@ import {
   RejectQuotation,
 } from '@/domain/usecases/rfq-usecases'
 import {
-  GetAiSuggestions,
-  FindAlternatives,
-  AnalyzeRfq,
+  AiChat,
+  AiAnalyzeProduct,
+  AiSuggestComplementary,
 } from '@/domain/usecases/ai-usecases'
 
 const productRepository = new ProductRepositoryImpl()
@@ -72,8 +72,8 @@ export const useCases = {
     rejectQuotation: new RejectQuotation(rfqRepository),
   },
   ai: {
-    getSuggestions: new GetAiSuggestions(aiRepository),
-    findAlternatives: new FindAlternatives(aiRepository),
-    analyzeRfq: new AnalyzeRfq(aiRepository),
+    chat: new AiChat(aiRepository),
+    analyzeProduct: new AiAnalyzeProduct(aiRepository),
+    suggestComplementary: new AiSuggestComplementary(aiRepository),
   },
 } as const

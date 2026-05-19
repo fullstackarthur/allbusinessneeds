@@ -1,38 +1,38 @@
-import type { AiSuggestion, Product } from '@/domain/entities'
+import type { AiRequest, AiResponse } from '@/core/types/ai-schemas'
 import type { AiRepository } from '@/domain/repositories/ai-repository'
 
-export class GetAiSuggestions {
+export class AiChat {
   repository: AiRepository
 
   constructor(repository: AiRepository) {
     this.repository = repository
   }
 
-  async execute(context: string, limit = 5): Promise<AiSuggestion[]> {
-    return this.repository.getSuggestions(context, limit)
+  async execute(request: AiRequest): Promise<AiResponse> {
+    return this.repository.chat(request)
   }
 }
 
-export class FindAlternatives {
+export class AiAnalyzeProduct {
   repository: AiRepository
 
   constructor(repository: AiRepository) {
     this.repository = repository
   }
 
-  async execute(productId: string, limit = 4): Promise<Product[]> {
-    return this.repository.findAlternatives(productId, limit)
+  async execute(productId: string, context: string): Promise<AiResponse> {
+    return this.repository.analyzeProductContext(productId, context)
   }
 }
 
-export class AnalyzeRfq {
+export class AiSuggestComplementary {
   repository: AiRepository
 
   constructor(repository: AiRepository) {
     this.repository = repository
   }
 
-  async execute(rfqId: string): Promise<{ suggestions: AiSuggestion[]; estimatedTotal: number }> {
-    return this.repository.analyzeRfq(rfqId)
+  async execute(rfqItems: Array<{ product_id: string; quantity: number }>): Promise<AiResponse> {
+    return this.repository.suggestComplementaryProducts(rfqItems)
   }
 }

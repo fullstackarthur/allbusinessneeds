@@ -3,8 +3,12 @@ import type { AiRepository } from '@/domain/repositories/ai-repository'
 import { httpClient } from '@/core/http/client'
 import { AiSuggestionMapper, ProductMapper } from '@/data/mappers'
 import type { AiSuggestionDto, ProductDto } from '@/data/dtos'
+import type { AiRequest, AiResponse } from '@/core/types/ai-schemas'
+import { AiResponseSchema } from '@/core/types/ai-schemas'
+import { AppError } from '@/core/errors'
 
 const AI_ENDPOINT = '/ai'
+const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || ''
 
 export class AiRepositoryImpl implements AiRepository {
   async getSuggestions(context: string, limit = 5): Promise<AiSuggestion[]> {
@@ -40,5 +44,45 @@ export class AiRepositoryImpl implements AiRepository {
       { product_data: productData },
     )
     return response.data.description
+  }
+
+  async chat(request: AiRequest): Promise<AiResponse> {
+    const url = N8N_WEBHOOK_URL || `${AI_ENDPOINT}/chat`
+
+    const response = await httpClient.post<unknown>(url, request)
+
+    try {
+      const parsed = AiResponseSchema.parse(response.data)
+      return parsed
+    } catch {
+      throw new AppError('AI response format is invalid', 500)
+    }
+  }
+
+  async analyzeProductContext(productId: string, context: string): Promise<AiResponse> {
+    const response = await httpClient.post<unknown>(`${AI_ENDPOINT}/analyze-product`, {
+      product_id: productId,
+      context,
+    })
+
+    try {
+      const parsed = AiResponseSchema.parse(response.data)
+      return parsed
+    } catch {
+      throw new AppError('AI response format is invalid', 500)
+    }
+  }
+
+  async suggestComplementaryProducts(rfqItems: Array<{ product_id: string; quantity: number }>): Promise<AiResponse> {
+    const response = await httpClient.post<unknown>(`${AI_ENDPOINT}/suggest-complementary`, {
+      rfq_items: rfqItems,
+    })
+
+    try {
+      const parsed = AiResponseSchema.parse(response.data)
+      return parsed
+    } catch {
+      throw new AppError('AI response format is invalid', 500)
+    }
   }
 }

@@ -3,6 +3,7 @@ import { cn } from '@/shared/lib/utils'
 import { ROUTES } from '@/core/constants'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useUiStore } from '@/presentation/stores/ui-store'
+import { useAiStore } from '@/presentation/stores/ai-store'
 import {
   Home,
   Grid3X3,
@@ -14,16 +15,17 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { label: 'Home', icon: Home, href: ROUTES.HOME },
-  { label: 'Categories', icon: Grid3X3, href: ROUTES.CATEGORIES },
-  { label: 'AI', icon: Sparkles, href: ROUTES.AI_COPILOT },
-  { label: 'RFQs', icon: FileText, href: ROUTES.RFQS },
-  { label: 'Account', icon: User, href: ROUTES.ACCOUNT },
+  { label: 'Home', icon: Home, href: ROUTES.HOME, action: null },
+  { label: 'Categories', icon: Grid3X3, href: ROUTES.CATEGORIES, action: null },
+  { label: 'AI', icon: Sparkles, href: ROUTES.AI_COPILOT, action: 'open-ai' },
+  { label: 'RFQs', icon: FileText, href: ROUTES.RFQS, action: null },
+  { label: 'Account', icon: User, href: ROUTES.ACCOUNT, action: null },
 ]
 
 function MobileBottomNav() {
   const location = useLocation()
   const itemCount = useRfqDraftStore((state) => state.getItemCount())
+  const setAiOpen = useAiStore((state) => state.setOpen)
 
   return (
     <nav
@@ -35,6 +37,22 @@ function MobileBottomNav() {
         {navItems.map((item) => {
           const isActive = location.pathname === item.href
           const Icon = item.icon
+
+          if (item.action === 'open-ai') {
+            return (
+              <button
+                key={item.href}
+                onClick={() => setAiOpen(true)}
+                className={cn(
+                  'relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-xs font-medium transition-colors',
+                  isActive ? 'text-primary' : 'text-text-muted hover:text-text',
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                <span>{item.label}</span>
+              </button>
+            )
+          }
 
           return (
             <Link
@@ -67,6 +85,7 @@ function DesktopHeader() {
   const location = useLocation()
   const itemCount = useRfqDraftStore((state) => state.getItemCount())
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
+  const setAiOpen = useAiStore((state) => state.setOpen)
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-sm">
@@ -84,6 +103,24 @@ function DesktopHeader() {
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Desktop navigation">
             {navItems.map((item) => {
               const isActive = location.pathname === item.href
+
+              if (item.action === 'open-ai') {
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => setAiOpen(true)}
+                    className={cn(
+                      'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-primary-muted text-primary'
+                        : 'text-text-secondary hover:bg-surface-hover hover:text-text',
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                )
+              }
+
               return (
                 <Link
                   key={item.href}
