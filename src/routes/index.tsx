@@ -11,6 +11,26 @@ import { ProductDetailPage } from '@/presentation/features/product'
 import { ProductListingPage } from '@/presentation/features/product-listing'
 import { SearchPage } from '@/presentation/features/search'
 import { BrandsPage } from '@/presentation/features/brands'
+import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
+import { useEffect } from 'react'
+
+function CartRoute() {
+  const setStep = useRfqWorkflowStore((state) => state.setStep)
+  useEffect(() => { setStep('cart') }, [setStep])
+  return <RfqWorkflowPage />
+}
+
+function CheckoutRoute() {
+  const setStep = useRfqWorkflowStore((state) => state.setStep)
+  useEffect(() => { setStep('review') }, [setStep])
+  return <RfqWorkflowPage />
+}
+
+function RfqReviewRoute() {
+  const setStep = useRfqWorkflowStore((state) => state.setStep)
+  useEffect(() => { setStep('review') }, [setStep])
+  return <RfqWorkflowPage />
+}
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +48,10 @@ export const router = createBrowserRouter([
       { path: ROUTES.CATEGORIES, element: <CategoriesPage /> },
       { path: ROUTES.AI_COPILOT, element: <AiCopilotPage /> },
       { path: ROUTES.RFQS, element: <RfqHistoryPage /> },
-      { path: '/rfq', element: <RfqWorkflowPage /> },
+      { path: ROUTES.RFQ_WORKFLOW, element: <RfqWorkflowPage /> },
+      { path: ROUTES.RFQ_REVIEW, element: <RfqReviewRoute /> },
+      { path: ROUTES.CART, element: <CartRoute /> },
+      { path: ROUTES.CHECKOUT, element: <CheckoutRoute /> },
       { path: ROUTES.ACCOUNT, element: <AccountPage /> },
       { path: ROUTES.PRODUCT, element: <ProductDetailPage /> },
       { path: '/products', element: <ProductListingPage /> },

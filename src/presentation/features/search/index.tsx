@@ -4,7 +4,7 @@ import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
-import { useSearchProducts } from '@/shared/hooks/use-supabase-data'
+import { useProducts, useSearchProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal } from 'lucide-react'
 import * as React from 'react'
@@ -12,11 +12,18 @@ import * as React from 'react'
 function SearchPage() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
-  const { results: products, loading } = useSearchProducts(query)
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
   const [filterDrawerOpen, setFilterDrawerOpen] = React.useState(false)
+
+  const { results: searchResults, loading: searchLoading } = useSearchProducts(query, 50)
+  const categoryFilter = filters.category?.[0] || ''
+  const { products: allProducts, loading: allLoading } = useProducts({ limit: 50, category: categoryFilter || undefined })
+
+  const products = query.trim() ? searchResults : allProducts
+  const loading = query.trim() ? searchLoading : allLoading
+
+  const addItem = useRfqDraftStore((state) => state.addItem)
+  const initialize = useRfqDraftStore((state) => state.initialize)
 
   const handleAddToRfq = (product: Product, quantity: number) => {
     initialize()
@@ -32,8 +39,7 @@ function SearchPage() {
           <span className="text-text">Search</span>
         </div>
         <h1 className="mt-2 text-xl font-semibold text-text">
-          Search Results
-          {query && <span className="font-normal text-text-secondary"> for "{query}"</span>}
+          {query ? `Search Results for "${query}"` : 'Browse Products'}
         </h1>
         {!loading && (
           <p className="mt-1 text-sm text-text-secondary">
@@ -106,15 +112,17 @@ function SearchPage() {
         </div>
       ) : products.length === 0 ? (
         <EmptyState
-          title="No results found"
+          title={query ? "No results found" : "No products available"}
           description={query
             ? `No products match "${query}". Try searching by SKU, brand, or category.`
-            : 'Enter a search term to find products'}
+            : 'Products will appear here once available'}
           icon={<SearchIcon className="h-8 w-8" />}
           action={
-            <Link to="/">
-              <Button variant="outline">Browse Catalog</Button>
-            </Link>
+            query ? (
+              <Link to="/">
+                <Button variant="outline">Browse Catalog</Button>
+              </Link>
+            ) : undefined
           }
         />
       ) : viewMode === 'grid' ? (

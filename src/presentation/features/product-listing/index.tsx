@@ -1,20 +1,27 @@
-import { Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
-import { useProducts } from '@/shared/hooks/use-supabase-data'
+import { useProducts, useCategoryBySlug } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { SlidersHorizontal, Grid3X3, List } from 'lucide-react'
 import * as React from 'react'
 
 function ProductListingPage() {
-  const { products, loading } = useProducts()
+  const { slug } = useParams<{ slug: string }>()
+  const { category } = useCategoryBySlug(slug || '')
+  const { products, loading } = useProducts({ category: slug })
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
   const [filterDrawerOpen, setFilterDrawerOpen] = React.useState(false)
+
+  const pageTitle = category?.name || 'All Products'
+  const pageDescription = category
+    ? `${products.length} products in ${category.name}`
+    : `${products.length} products available for procurement`
 
   const handleAddToRfq = (product: Product, quantity: number) => {
     initialize()
@@ -45,12 +52,18 @@ function ProductListingPage() {
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <Link to="/" className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
-          <span className="text-text">All Products</span>
+          {category ? (
+            <>
+              <Link to="/categories" className="hover:text-text transition-colors">Categories</Link>
+              <span>/</span>
+              <span className="text-text">{category.name}</span>
+            </>
+          ) : (
+            <span className="text-text">All Products</span>
+          )}
         </div>
-        <h1 className="mt-2 text-xl font-semibold text-text">All Products</h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          {products.length} products available for procurement
-        </p>
+        <h1 className="mt-2 text-xl font-semibold text-text">{pageTitle}</h1>
+        <p className="mt-1 text-sm text-text-secondary">{pageDescription}</p>
       </div>
 
       {/* Filter Bar */}

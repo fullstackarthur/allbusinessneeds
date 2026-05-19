@@ -6,30 +6,27 @@ import { Button } from '@/shared/components/ui/button'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
-import { useProducts } from '@/shared/hooks/use-supabase-data'
+import { useProducts, useCategories } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { Search, Sparkles, Grid3X3, ArrowRight, FileText, TrendingUp } from 'lucide-react'
-
-const procurementCategories = [
-  { id: 'paper', name: 'Paper & Printing', slug: 'paper', count: 145, icon: '📄' },
-  { id: 'writing', name: 'Writing Instruments', slug: 'writing', count: 98, icon: '✏️' },
-  { id: 'organization', name: 'Filing & Organization', slug: 'organization', count: 76, icon: '📁' },
-  { id: 'desk', name: 'Desk Accessories', slug: 'desk', count: 112, icon: '📎' },
-  { id: 'technology', name: 'Technology', slug: 'technology', count: 64, icon: '💻' },
-  { id: 'breakroom', name: 'Breakroom', slug: 'breakroom', count: 43, icon: '☕' },
-  { id: 'cleaning', name: 'Cleaning & Hygiene', slug: 'cleaning', count: 58, icon: '🧹' },
-  { id: 'shipping', name: 'Shipping & Mailing', slug: 'shipping', count: 37, icon: '📦' },
-]
 
 function HomePage() {
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
   const { items: recentlyViewed } = useRecentlyViewed()
-  const { products, loading } = useProducts({ limit: 8 })
+  const { products, loading } = useProducts({ limit: 20 })
+  const { categories, loading: categoriesLoading } = useCategories()
+  const displayCategories = categories.slice(0, 4)
 
-  const featuredProducts = products.slice(0, 8)
-  const compactProducts = products.slice(0, 4)
+  const seed = Math.floor(Date.now() / (1000 * 60 * 60))
+  const shuffled = [...products].sort((a, b) => {
+    const hashA = Math.sin(seed + a.id.charCodeAt(0)) * 10000
+    const hashB = Math.sin(seed + b.id.charCodeAt(0)) * 10000
+    return (hashA % 1) - (hashB % 1)
+  })
+  const featuredProducts = shuffled.slice(0, 8)
+  const compactProducts = shuffled.slice(0, 4)
 
   const handleAddToRfq = (product: Product, quantity: number) => {
     initialize()
@@ -107,23 +104,36 @@ function HomePage() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {procurementCategories.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/categories/${cat.slug}`}
-              className="group flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center transition-all duration-150 hover:border-border-strong hover:shadow-sm"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-muted text-lg">
-                <Grid3X3 className="h-5 w-5 text-primary" />
+          {categoriesLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 animate-pulse"
+              >
+                <div className="h-10 w-10 rounded-lg bg-surface-active" />
+                <div className="h-4 w-20 rounded bg-surface-active" />
+                <div className="h-3 w-14 rounded bg-surface-active" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-text group-hover:text-primary transition-colors">
-                  {cat.name}
-                </p>
-                <p className="mt-0.5 text-xs text-text-muted">{cat.count} products</p>
-              </div>
-            </Link>
-          ))}
+            ))
+          ) : (
+            displayCategories.map((cat) => (
+              <Link
+                key={cat.id}
+                to={`/categories/${cat.slug}`}
+                className="group flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center transition-all duration-150 hover:border-border-strong hover:shadow-sm"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-muted text-lg">
+                  <Grid3X3 className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-text group-hover:text-primary transition-colors">
+                    {cat.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-muted">{cat.productCount} products</p>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </section>
 

@@ -1,9 +1,10 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { ROUTES } from '@/core/constants'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { useAiStore } from '@/presentation/stores/ai-store'
+import { useMediaQuery } from '@/shared/hooks/use-media-query'
 import {
   Home,
   Grid3X3,
@@ -87,10 +88,20 @@ function MobileBottomNav() {
 
 function DesktopHeader() {
   const location = useLocation()
+  const navigate = useNavigate()
   const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
+  const isMobile = useMediaQuery('(max-width: 1023px)')
+
+  const handleSearchClick = () => {
+    if (isMobile) {
+      navigate('/search')
+    } else {
+      setSearchOpen(true)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-sm">
@@ -146,7 +157,7 @@ function DesktopHeader() {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setSearchOpen(true)}
+            onClick={handleSearchClick}
             className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-muted hover:border-border-strong hover:text-text transition-colors"
             aria-label="Search"
           >
