@@ -5,12 +5,15 @@ import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
 export function useRfqSync() {
   const draftItems = useRfqDraftStore((state) => state.draft?.items || [])
   const addItem = useRfqWorkflowStore((state) => state.addItem)
-  const workflowItems = useRfqWorkflowStore((state) => state.items)
+  const syncedRef = React.useRef(false)
 
   React.useEffect(() => {
     if (draftItems.length === 0) return
+    if (syncedRef.current) return
 
-    const workflowIds = new Set(workflowItems.map((i) => i.product_id))
+    syncedRef.current = true
+
+    const workflowIds = new Set(useRfqWorkflowStore.getState().items.map((i) => i.product_id))
 
     draftItems.forEach((item) => {
       if (!workflowIds.has(item.productId)) {
@@ -24,5 +27,5 @@ export function useRfqSync() {
         })
       }
     })
-  }, [draftItems, addItem, workflowItems])
+  }, [draftItems, addItem])
 }

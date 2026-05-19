@@ -33,13 +33,15 @@ function RfqCartPage() {
   const setStep = useRfqWorkflowStore((state) => state.setStep)
   const getEstimatedTotal = useRfqWorkflowStore((state) => state.getEstimatedTotal)
 
-  const [synced, setSynced] = React.useState(false)
+  const syncedRef = React.useRef(false)
 
   React.useEffect(() => {
-    if (draftItems.length === 0 && workflowItems.length === 0) return
-    if (synced) return
+    if (draftItems.length === 0) return
+    if (syncedRef.current) return
 
-    const workflowIds = new Set(workflowItems.map((i) => i.product_id))
+    syncedRef.current = true
+
+    const workflowIds = new Set(useRfqWorkflowStore.getState().items.map((i) => i.product_id))
 
     draftItems.forEach((item) => {
       if (!workflowIds.has(item.productId)) {
@@ -58,9 +60,7 @@ function RfqCartPage() {
         })
       }
     })
-
-    setSynced(true)
-  }, [draftItems, workflowItems, addItem, synced])
+  }, [draftItems, addItem])
 
   const items = workflowItems.length > 0 ? workflowItems : draftItems.map((item) => ({
     id: item.productId,

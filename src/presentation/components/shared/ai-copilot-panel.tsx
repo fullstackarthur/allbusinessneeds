@@ -67,18 +67,27 @@ function AiCopilotPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isProcessing])
 
+  const rfqItemsRef = React.useRef(rfqItems)
+
   React.useEffect(() => {
+    rfqItemsRef.current = rfqItems
+  }, [rfqItems])
+
+  React.useEffect(() => {
+    if (!isOpen) return
+
+    const items = rfqItemsRef.current
     useAiStore.setState({
       context: {
         ...useAiStore.getState().context,
-        currentRfqItems: rfqItems.map((item) => ({
+        currentRfqItems: items.map((item) => ({
           product_id: item.productId,
           product_name: item.productName,
           quantity: item.quantity,
         })),
       },
     })
-  }, [rfqItems])
+  }, [isOpen, rfqItems.length])
 
   React.useEffect(() => {
     if (!isOpen) return
