@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Cart, CartItem } from '@/domain/entities'
 import { useCases } from '@/core/container'
 
@@ -8,7 +7,6 @@ interface CartState {
   isLoading: boolean
   error: string | null
   itemCount: number
-  _hasHydrated: boolean
 
   fetchCart: () => Promise<void>
   addItem: (item: CartItem) => Promise<void>
@@ -16,98 +14,80 @@ interface CartState {
   removeItem: (itemId: string) => Promise<void>
   clear: () => Promise<void>
   reset: () => void
-  _setHasHydrated: () => void
 }
 
-export const useCartStore = create<CartState>()(
-  persist(
-    (set) => ({
-      cart: null,
-      isLoading: false,
-      error: null,
-      itemCount: 0,
-      _hasHydrated: false,
+export const useCartStore = create<CartState>()((set) => ({
+  cart: null,
+  isLoading: false,
+  error: null,
+  itemCount: 0,
 
-      fetchCart: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const cart = await useCases.cart.get.execute()
-          set({ cart, itemCount: cart.itemCount, isLoading: false })
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to fetch cart',
-            isLoading: false,
-          })
-        }
-      },
+  fetchCart: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const cart = await useCases.cart.get.execute()
+      set({ cart, itemCount: cart.itemCount, isLoading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch cart',
+        isLoading: false,
+      })
+    }
+  },
 
-      addItem: async (item: CartItem) => {
-        set({ isLoading: true, error: null })
-        try {
-          const cart = await useCases.cart.add.execute(item)
-          set({ cart, itemCount: cart.itemCount, isLoading: false })
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to add item',
-            isLoading: false,
-          })
-        }
-      },
+  addItem: async (item: CartItem) => {
+    set({ isLoading: true, error: null })
+    try {
+      const cart = await useCases.cart.add.execute(item)
+      set({ cart, itemCount: cart.itemCount, isLoading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to add item',
+        isLoading: false,
+      })
+    }
+  },
 
-      updateItem: async (itemId: string, quantity: number) => {
-        set({ isLoading: true, error: null })
-        try {
-          const cart = await useCases.cart.update.execute(itemId, quantity)
-          set({ cart, itemCount: cart.itemCount, isLoading: false })
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to update item',
-            isLoading: false,
-          })
-        }
-      },
+  updateItem: async (itemId: string, quantity: number) => {
+    set({ isLoading: true, error: null })
+    try {
+      const cart = await useCases.cart.update.execute(itemId, quantity)
+      set({ cart, itemCount: cart.itemCount, isLoading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to update item',
+        isLoading: false,
+      })
+    }
+  },
 
-      removeItem: async (itemId: string) => {
-        set({ isLoading: true, error: null })
-        try {
-          const cart = await useCases.cart.remove.execute(itemId)
-          set({ cart, itemCount: cart.itemCount, isLoading: false })
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to remove item',
-            isLoading: false,
-          })
-        }
-      },
+  removeItem: async (itemId: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      const cart = await useCases.cart.remove.execute(itemId)
+      set({ cart, itemCount: cart.itemCount, isLoading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to remove item',
+        isLoading: false,
+      })
+    }
+  },
 
-      clear: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          await useCases.cart.clear.execute()
-          set({ cart: null, itemCount: 0, isLoading: false })
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to clear cart',
-            isLoading: false,
-          })
-        }
-      },
+  clear: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      await useCases.cart.clear.execute()
+      set({ cart: null, itemCount: 0, isLoading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to clear cart',
+        isLoading: false,
+      })
+    }
+  },
 
-      reset: () => {
-        set({ cart: null, isLoading: false, error: null, itemCount: 0 })
-      },
-
-      _setHasHydrated: () => set({ _hasHydrated: true }),
-    }),
-    {
-      name: 'abn-cart',
-      partialize: (state) => ({ cart: state.cart, itemCount: state.itemCount }),
-      storage: createJSONStorage(() => localStorage),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          state._setHasHydrated()
-        }
-      },
-    },
-  ),
-)
+  reset: () => {
+    set({ cart: null, isLoading: false, error: null, itemCount: 0 })
+  },
+}))

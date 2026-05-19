@@ -25,7 +25,6 @@ const rfqSteps = [
 ]
 
 function RfqCartPage() {
-  const hasHydrated = useRfqWorkflowStore((state) => state._hasHydrated)
   const addItem = useRfqWorkflowStore((state) => state.addItem)
   const removeItem = useRfqWorkflowStore((state) => state.removeItem)
   const updateQuantity = useRfqWorkflowStore((state) => state.updateQuantity)
@@ -37,7 +36,6 @@ function RfqCartPage() {
   const syncedRef = React.useRef<string>('')
 
   React.useEffect(() => {
-    if (!hasHydrated) return
     if (draftItems.length === 0) return
 
     const key = draftItems.map((i) => `${i.productId}:${i.quantity}`).join(',')
@@ -63,7 +61,7 @@ function RfqCartPage() {
         })
       }
     })
-  }, [hasHydrated, draftItems, addItem])
+  }, [draftItems, addItem])
 
   const items = workflowItems.length > 0 ? workflowItems : draftItems.map((item) => ({
     id: item.productId,
@@ -75,15 +73,6 @@ function RfqCartPage() {
   }))
 
   const estimatedTotal = getEstimatedTotal()
-
-  if (!hasHydrated) {
-    return (
-      <div className="space-y-6">
-        <div className="h-7 w-48 rounded bg-surface-active animate-pulse" />
-        <div className="h-3 w-64 rounded bg-surface-active animate-pulse" />
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">
