@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Cart, CartItem } from '@/domain/entities'
 import { useCases } from '@/core/container'
 
@@ -8,6 +8,7 @@ interface CartState {
   isLoading: boolean
   error: string | null
   itemCount: number
+  _hasHydrated: boolean
 
   fetchCart: () => Promise<void>
   addItem: (item: CartItem) => Promise<void>
@@ -15,6 +16,7 @@ interface CartState {
   removeItem: (itemId: string) => Promise<void>
   clear: () => Promise<void>
   reset: () => void
+  _setHasHydrated: () => void
 }
 
 export const useCartStore = create<CartState>()(
@@ -24,6 +26,7 @@ export const useCartStore = create<CartState>()(
       isLoading: false,
       error: null,
       itemCount: 0,
+      _hasHydrated: false,
 
       fetchCart: async () => {
         set({ isLoading: true, error: null })
@@ -93,10 +96,18 @@ export const useCartStore = create<CartState>()(
       reset: () => {
         set({ cart: null, isLoading: false, error: null, itemCount: 0 })
       },
+
+      _setHasHydrated: () => set({ _hasHydrated: true }),
     }),
     {
       name: 'abn-cart',
       partialize: (state) => ({ cart: state.cart, itemCount: state.itemCount }),
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state._setHasHydrated()
+        }
+      },
     },
   ),
 )

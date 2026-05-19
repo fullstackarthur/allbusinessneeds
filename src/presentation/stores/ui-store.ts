@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 interface UiState {
   sidebarOpen: boolean
@@ -13,22 +12,14 @@ interface UiState {
   setMobileNavVisible: (visible: boolean) => void
 }
 
-export const useUiStore = create<UiState>()(
-  persist(
-    (set) => ({
-      sidebarOpen: false,
-      searchOpen: false,
-      mobileNavVisible: true,
+export const useUiStore = create<UiState>((set) => ({
+  sidebarOpen: false,
+  searchOpen: false,
+  mobileNavVisible: true,
 
-      setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
-      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-      setSearchOpen: (open: boolean) => set({ searchOpen: open }),
-      toggleSearch: () => set((state) => ({ searchOpen: !state.searchOpen })),
-      setMobileNavVisible: (visible: boolean) => set({ mobileNavVisible: visible }),
-    }),
-    {
-      name: 'abn-ui',
-      partialize: (state) => ({ mobileNavVisible: state.mobileNavVisible }),
-    },
-  ),
-)
+  setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  setSearchOpen: (open: boolean) => set({ searchOpen: open }),
+  toggleSearch: () => set((state) => ({ searchOpen: !state.searchOpen })),
+  setMobileNavVisible: (visible: boolean) => set({ mobileNavVisible: visible }),
+}))

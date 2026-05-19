@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { RfqItem, RfqContact, RfqDelivery, RfqStatus } from '@/core/types/rfq-schemas'
 import type { FileAttachment } from '@/shared/components/ui/attachment-uploader'
 import { generateId } from '@/core/utils/helpers'
@@ -19,6 +19,7 @@ interface RfqWorkflowState {
   status: RfqStatus
   submittedAt: string | null
   error: string | null
+  _hasHydrated: boolean
 
   setStep: (step: RfqStep) => void
   addItem: (item: RfqItem) => void
@@ -38,6 +39,7 @@ interface RfqWorkflowState {
   getItemCount: () => number
   getEstimatedTotal: () => number
   getCategories: () => string[]
+  _setHasHydrated: () => void
 }
 
 export const useRfqWorkflowStore = create<RfqWorkflowState>()(
@@ -55,6 +57,7 @@ export const useRfqWorkflowStore = create<RfqWorkflowState>()(
       status: 'draft',
       submittedAt: null,
       error: null,
+      _hasHydrated: false,
 
       setStep: (step) => set({ step, error: null }),
 
@@ -159,6 +162,8 @@ export const useRfqWorkflowStore = create<RfqWorkflowState>()(
         const categories = new Set(get().items.map((i) => i.category).filter(Boolean))
         return Array.from(categories) as string[]
       },
+
+      _setHasHydrated: () => set({ _hasHydrated: true }),
     }),
     {
       name: 'abn-rfq-workflow',
@@ -173,6 +178,12 @@ export const useRfqWorkflowStore = create<RfqWorkflowState>()(
         status: state.status,
         submittedAt: state.submittedAt,
       }),
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state._setHasHydrated()
+        }
+      },
     },
   ),
 )

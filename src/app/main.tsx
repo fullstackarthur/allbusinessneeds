@@ -8,30 +8,34 @@ import { useUiStore } from '@/presentation/stores/ui-store'
 import '@/app/styles/globals.css'
 
 function KeyboardShortcuts() {
-  const setSearchOpen = useUiStore((state) => state.setSearchOpen)
-
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
-        setSearchOpen(true)
+        useUiStore.getState().setSearchOpen(true)
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [setSearchOpen])
+  }, [])
 
   return null
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+function App() {
+  return (
     <ErrorBoundary>
       <QueryProvider>
         <KeyboardShortcuts />
         <RouterProvider router={router} />
       </QueryProvider>
     </ErrorBoundary>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
   </React.StrictMode>,
 )
