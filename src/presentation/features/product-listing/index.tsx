@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
@@ -11,6 +11,7 @@ import * as React from 'react'
 
 function ProductListingPage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const { category } = useCategoryBySlug(slug || '')
   const { products, loading } = useProducts({ category: slug })
   const addItem = useRfqDraftStore((state) => state.addItem)
@@ -39,6 +40,10 @@ function ProductListingPage() {
       productName: product.name,
       quantity: product.minOrderQuantity,
     })
+  }
+
+  const handleViewProduct = (product: Product) => {
+    navigate(`/products/${product.id}`)
   }
 
   const handleApplyFilters = () => {
@@ -150,7 +155,7 @@ function ProductListingPage() {
               key={product.id}
               product={product}
               onAddToRfq={handleAddToRfq}
-              onView={() => {}}
+              onView={handleViewProduct}
             />
           ))}
         </div>
@@ -161,7 +166,7 @@ function ProductListingPage() {
               key={product.id}
               product={product}
               onAddToRfq={handleCompactAdd}
-              onView={() => {}}
+              onView={handleViewProduct}
             />
           ))}
         </div>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ProductCard } from '@/shared/components/ui/product-card'
 import { ProductCardCompact } from '@/shared/components/ui/product-card-compact'
 import { ProductCardSkeleton } from '@/shared/components/ui/skeleton'
@@ -7,11 +7,14 @@ import { useUiStore } from '@/presentation/stores/ui-store'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
 import { useProducts, useCategories } from '@/shared/hooks/use-supabase-data'
+import { useMediaQuery } from '@/shared/hooks/use-media-query'
 import type { Product } from '@/domain/entities'
 import { Search, Sparkles, Grid3X3, ArrowRight, FileText, TrendingUp } from 'lucide-react'
 
 function HomePage() {
+  const navigate = useNavigate()
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
+  const isMobile = useMediaQuery('(max-width: 1023px)')
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
   const { items: recentlyViewed } = useRecentlyViewed()
@@ -46,6 +49,10 @@ function HomePage() {
     })
   }
 
+  const handleViewProduct = (product: Product) => {
+    navigate(`/products/${product.id}`)
+  }
+
   return (
     <div className="space-y-8">
       {/* Search Hero */}
@@ -59,7 +66,13 @@ function HomePage() {
           </p>
 
           <button
-            onClick={() => setSearchOpen(true)}
+            onClick={() => {
+              if (isMobile) {
+                navigate('/search')
+              } else {
+                setSearchOpen(true)
+              }
+            }}
             className="mt-5 flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-muted hover:border-border-strong hover:text-text transition-colors text-left"
           >
             <Search className="h-5 w-5 shrink-0" />
@@ -163,7 +176,8 @@ function HomePage() {
                 key={product.id}
                 product={product}
                 onAddToRfq={handleAddToRfq}
-                onView={() => {}}
+                onView={handleViewProduct}
+                compact
               />
             ))}
           </div>
@@ -193,12 +207,13 @@ function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div className="mt-4 grid gap-2 grid-cols-1 sm:grid-cols-2">
             {compactProducts.map((product) => (
               <ProductCardCompact
                 key={product.id}
                 product={product}
                 onAddToRfq={handleCompactAdd}
+                onView={handleViewProduct}
               />
             ))}
           </div>
@@ -207,15 +222,17 @@ function HomePage() {
 
       {/* Recently Viewed */}
       {recentlyViewed.length > 0 && (
-        <section>
-          <h2 className="text-base font-semibold text-text">Recently Viewed</h2>
-          <div className="mt-4 flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        <section className="sm:-mx-0">
+          <div className="px-4 sm:px-0">
+            <h2 className="text-base font-semibold text-text">Recently Viewed</h2>
+          </div>
+          <div className="mt-4 flex gap-3 overflow-x-auto pb-4 sm:px-0 snap-x snap-mandatory scrollbar-none">
             {recentlyViewed.map((product) => (
-              <div key={product.id} className="w-36 shrink-0">
+              <div key={product.id} className="w-[160px] sm:w-[180px] shrink-0 snap-start">
                 <ProductCard
                   product={product}
                   onAddToRfq={handleAddToRfq}
-                  onView={() => {}}
+                  onView={handleViewProduct}
                   compact
                 />
               </div>

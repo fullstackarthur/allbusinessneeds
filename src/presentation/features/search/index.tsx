@@ -1,26 +1,27 @@
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
-import { useProducts, useSearchProducts } from '@/shared/hooks/use-supabase-data'
+import { useSearchProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
-import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal } from 'lucide-react'
+import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal, X } from 'lucide-react'
 import * as React from 'react'
 
 function SearchPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const query = searchParams.get('q') || ''
+  const [inputValue, setInputValue] = React.useState(query)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
   const [filterDrawerOpen, setFilterDrawerOpen] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
   const { results: searchResults, loading: searchLoading } = useSearchProducts(query, 50)
-  const categoryFilter = filters.category?.[0] || ''
-  const { products: allProducts, loading: allLoading } = useProducts({ limit: 50, category: categoryFilter || undefined })
 
-  const products = query.trim() ? searchResults : allProducts
-  const loading = query.trim() ? searchLoading : allLoading
+  const products = query.trim() ? searchResults : []
+  const loading = query.trim() ? searchLoading : false
 
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
@@ -30,8 +31,58 @@ function SearchPage() {
     addItem({ productId: product.id, productName: product.name, quantity })
   }
 
+  const handleViewProduct = (product: Product) => {
+    navigate(`/products/${product.id}`)
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (inputValue.trim()) {
+      setSearchParams({ q: inputValue.trim() })
+    } else {
+      setSearchParams({})
+    }
+  }
+
+  const handleClear = () => {
+    setInputValue('')
+    setSearchParams({})
+    inputRef.current?.focus()
+  }
+
+  React.useEffect(() => {
+    setInputValue(query)
+  }, [query])
+
   return (
     <div className="space-y-4">
+      {/* Mobile Search Input */}
+      <div className="lg:hidden">
+        <form onSubmit={handleSearch} className="relative">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Search products, SKUs, categories..."
+            className="w-full h-11 pl-10 pr-10 rounded-lg border border-border bg-surface text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            autoFocus
+          />
+          {inputValue && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-surface-active transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4 text-text-muted" />
+            </button>
+          )}
+        </form>
+      </div>
+
+      {/* Breadcrumb & Title */}
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <Link to="/" className="hover:text-text transition-colors">Home</Link>
@@ -39,9 +90,9 @@ function SearchPage() {
           <span className="text-text">Search</span>
         </div>
         <h1 className="mt-2 text-xl font-semibold text-text">
-          {query ? `Search Results for "${query}"` : 'Browse Products'}
+          {query ? `Search Results for "${query}"` : 'Search Products'}
         </h1>
-        {!loading && (
+        {!loading && query && (
           <p className="mt-1 text-sm text-text-secondary">
             {products.length} products found
           </p>
@@ -101,7 +152,13 @@ function SearchPage() {
         onApply={() => setFilterDrawerOpen(false)}
       />
 
-      {loading ? (
+      {!query ? (
+        <EmptyState
+          title="Search for products"
+          description="Enter a product name, SKU, or category to find what you need"
+          icon={<SearchIcon className="h-8 w-8" />}
+        />
+      ) : loading ? (
         <div className={viewMode === 'grid'
           ? 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4'
           : 'space-y-3'
@@ -112,17 +169,13 @@ function SearchPage() {
         </div>
       ) : products.length === 0 ? (
         <EmptyState
-          title={query ? "No results found" : "No products available"}
-          description={query
-            ? `No products match "${query}". Try searching by SKU, brand, or category.`
-            : 'Products will appear here once available'}
+          title="No results found"
+          description={`No products match "${query}". Try searching by SKU, brand, or category.`}
           icon={<SearchIcon className="h-8 w-8" />}
           action={
-            query ? (
-              <Link to="/">
-                <Button variant="outline">Browse Catalog</Button>
-              </Link>
-            ) : undefined
+            <Link to="/">
+              <Button variant="outline">Browse Catalog</Button>
+            </Link>
           }
         />
       ) : viewMode === 'grid' ? (
@@ -132,7 +185,7 @@ function SearchPage() {
               key={product.id}
               product={product}
               onAddToRfq={handleAddToRfq}
-              onView={() => {}}
+              onView={handleViewProduct}
             />
           ))}
         </div>
@@ -143,7 +196,7 @@ function SearchPage() {
               key={product.id}
               product={product}
               onAddToRfq={() => handleAddToRfq(product, product.minOrderQuantity)}
-              onView={() => {}}
+              onView={handleViewProduct}
             />
           ))}
         </div>
