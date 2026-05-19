@@ -6,6 +6,8 @@ import { PdfPreviewModal } from '@/shared/components/ui/pdf-preview'
 import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
 import type { RfqContact, RfqDelivery } from '@/core/types/rfq-schemas'
 import { ROUTES } from '@/core/constants'
+import { submitRfqToN8n } from '@/domain/usecases/submit-rfq-to-n8n'
+import type { N8nRfqPayload } from '@/data/dtos/supabase'
 import {
   ChevronRight,
   ArrowLeft,
@@ -14,6 +16,7 @@ import {
   AlertCircle,
   Paperclip,
   Eye,
+  Loader2,
 } from 'lucide-react'
 import * as React from 'react'
 
@@ -57,6 +60,8 @@ function RfqDetailsPage() {
   const [showDelivery, setShowDelivery] = React.useState(delivery !== null)
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [showPdfPreview, setShowPdfPreview] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [submissionError, setSubmissionError] = React.useState<string | null>(null)
 
   const validateContact = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -71,13 +76,46 @@ function RfqDetailsPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     clearError()
+    setSubmissionError(null)
     if (!validateContact()) return
 
     setContact(formData)
     if (showDelivery) setDelivery(deliveryData)
-    setStep('confirmation')
+
+    setIsSubmitting(true)
+    try {
+      const rfqRef = `RFQ-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`
+      const lineItems = items.map((item) => ({
+        product_id: item.product_id,
+        title: item.product_name,
+        quantity: item.quantity,
+        unit_price: item.unit_price || item.target_price || undefined,
+        subtotal: (item.unit_price || item.target_price || 0) * item.quantity,
+        notes: item.specifications,
+      }))
+
+      const payload: N8nRfqPayload = {
+        rfq_ref: rfqRef,
+        contact_name: formData.full_name,
+        contact_email: formData.email,
+        contact_company: formData.company,
+        contact_phone: formData.phone,
+        line_items: lineItems,
+        estimated_total: getEstimatedTotal(),
+        rfq_notes: notes || undefined,
+      }
+
+      await submitRfqToN8n(payload)
+
+      useRfqWorkflowStore.getState().submit()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to submit RFQ'
+      setSubmissionError(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const pdfData = {
@@ -149,10 +187,10 @@ function RfqDetailsPage() {
         </div>
       </div>
 
-      {error && (
+      {(error || submissionError) && (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive-muted px-4 py-3">
           <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive">{submissionError || error}</p>
         </div>
       )}
 
@@ -375,9 +413,18 @@ function RfqDetailsPage() {
         <Button variant="outline" onClick={() => setStep('review')} className="flex-1">
           Back to Review
         </Button>
-        <Button onClick={handleContinue} className="flex-1">
-          Review & Submit
-          <ChevronRight className="ml-1.5 h-4 w-4" />
+        <Button onClick={handleContinue} className="flex-1" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              Review & Submit
+              <ChevronRight className="ml-1.5 h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
 

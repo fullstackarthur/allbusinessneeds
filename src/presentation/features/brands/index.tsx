@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { ProductCard } from '@/shared/components/ui'
+import { ProductCard, ProductCardSkeleton } from '@/shared/components/ui'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
-import { useBrands, mockProducts } from '@/shared/hooks/use-products'
+import { useProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { ArrowRight } from 'lucide-react'
 
 function BrandsPage() {
-  const { brands, loading } = useBrands()
+  const { products, loading } = useProducts({ limit: 4 })
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
 
@@ -29,38 +29,9 @@ function BrandsPage() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="rounded-lg border border-border bg-surface p-6">
-              <div className="h-12 w-24 rounded bg-surface-active animate-pulse" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {brands.map((brand) => (
-            <Link
-              key={brand.id}
-              to={`/brands/${brand.id}`}
-              className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface p-6 text-center transition-all duration-150 hover:border-border-strong hover:shadow-sm"
-            >
-              <div className="h-12 w-24 overflow-hidden rounded bg-surface-active">
-                <img src={brand.logo} alt={brand.name} className="h-full w-full object-contain" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-text">{brand.name}</p>
-                <p className="mt-0.5 text-xs text-text-muted">{brand.productCount} products</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {/* Featured Brand Products */}
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-text">Popular Brand Products</h2>
+          <h2 className="text-base font-semibold text-text">Featured Products</h2>
           <Link
             to="/search"
             className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
@@ -70,16 +41,24 @@ function BrandsPage() {
           </Link>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {mockProducts.slice(0, 4).map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToRfq={handleAddToRfq}
-              onView={() => {}}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToRfq={handleAddToRfq}
+                onView={() => {}}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

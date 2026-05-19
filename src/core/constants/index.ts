@@ -4,6 +4,7 @@ export const APP_SHORT_NAME = 'ABN'
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.allbusinessneeds.com'
 export const API_VERSION = 'v1'
 export const API_TIMEOUT = 15000
+export const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || ''
 
 export const ROUTES = {
   HOME: '/',

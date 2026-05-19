@@ -4,7 +4,7 @@ import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
-import { mockProducts } from '@/shared/hooks/use-products'
+import { useSearchProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal } from 'lucide-react'
 import * as React from 'react'
@@ -12,7 +12,7 @@ import * as React from 'react'
 function SearchPage() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
-  const { products, loading } = useFilteredProducts(query)
+  const { results: products, loading } = useSearchProducts(query)
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
@@ -142,38 +142,6 @@ function SearchPage() {
       )}
     </div>
   )
-}
-
-function useFilteredProducts(query: string) {
-  const [loading, setLoading] = React.useState(true)
-  const [products, setProducts] = React.useState<Product[]>([])
-
-  React.useEffect(() => {
-    if (!query) {
-      setProducts(mockProducts)
-      setLoading(false)
-      return
-    }
-
-    const timer = setTimeout(() => {
-      const q = query.toLowerCase()
-      const filtered = mockProducts.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.brand?.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          Object.values(p.attributes).some((v) => v.toLowerCase().includes(q)),
-      )
-      setProducts(filtered)
-      setLoading(false)
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [query])
-
-  return { products, loading }
 }
 
 import { Button } from '@/shared/components/ui/button'

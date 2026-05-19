@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
-import { useProducts, mockProducts } from '@/shared/hooks/use-products'
+import { useProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { Search, Sparkles, Grid3X3, ArrowRight, FileText, TrendingUp } from 'lucide-react'
 
@@ -21,20 +21,15 @@ const procurementCategories = [
   { id: 'shipping', name: 'Shipping & Mailing', slug: 'shipping', count: 37, icon: '📦' },
 ]
 
-const procurementCollections = [
-  { id: 'essentials', name: 'Office Essentials', description: 'Everyday supplies for smooth operations', products: mockProducts.slice(0, 4) },
-  { id: 'eco', name: 'Eco-Friendly Range', description: 'Sustainable procurement options', products: mockProducts.slice(4, 8) },
-  { id: 'bulk', name: 'Bulk Procurement', description: 'High-volume cost-effective supplies', products: mockProducts.slice(8, 12) },
-]
-
 function HomePage() {
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const addItem = useRfqDraftStore((state) => state.addItem)
   const initialize = useRfqDraftStore((state) => state.initialize)
   const { items: recentlyViewed } = useRecentlyViewed()
-  const { products, loading } = useProducts()
+  const { products, loading } = useProducts({ limit: 8 })
 
   const featuredProducts = products.slice(0, 8)
+  const compactProducts = products.slice(0, 4)
 
   const handleAddToRfq = (product: Product, quantity: number) => {
     initialize()
@@ -165,25 +160,31 @@ function HomePage() {
         )}
       </section>
 
-      {/* Procurement Collections */}
-      {procurementCollections.map((collection) => (
-        <section key={collection.id}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-text">{collection.name}</h2>
-              <p className="mt-0.5 text-sm text-text-secondary">{collection.description}</p>
-            </div>
-            <Link
-              to="/search"
-              className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
-            >
-              View all
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+      {/* Compact Product Cards */}
+      <section>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-text">Quick Add</h2>
+            <p className="mt-0.5 text-sm text-text-secondary">Popular items for fast procurement</p>
           </div>
+          <Link
+            to="/search"
+            className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
+          >
+            View all
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
 
+        {loading ? (
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {collection.products.map((product) => (
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {compactProducts.map((product) => (
               <ProductCardCompact
                 key={product.id}
                 product={product}
@@ -191,8 +192,8 @@ function HomePage() {
               />
             ))}
           </div>
-        </section>
-      ))}
+        )}
+      </section>
 
       {/* Recently Viewed */}
       {recentlyViewed.length > 0 && (

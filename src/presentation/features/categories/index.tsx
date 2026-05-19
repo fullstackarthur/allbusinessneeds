@@ -2,19 +2,26 @@ import { Link } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { Grid3X3, ChevronRight } from 'lucide-react'
-
-const categories = [
-  { id: '1', name: 'Paper & Printing', slug: 'paper', description: 'Copy paper, notebooks, printing supplies', productCount: 145 },
-  { id: '2', name: 'Writing Instruments', slug: 'writing', description: 'Pens, pencils, markers, highlighters', productCount: 98 },
-  { id: '3', name: 'Filing & Organization', slug: 'organization', description: 'Folders, binders, desk organizers', productCount: 76 },
-  { id: '4', name: 'Desk Accessories', slug: 'desk', description: 'Staplers, tape, scissors, rulers', productCount: 112 },
-  { id: '5', name: 'Technology', slug: 'technology', description: 'USB drives, cables, batteries', productCount: 64 },
-  { id: '6', name: 'Breakroom', slug: 'breakroom', description: 'Coffee, tea, snacks, supplies', productCount: 43 },
-  { id: '7', name: 'Cleaning & Hygiene', slug: 'cleaning', description: 'Sanitizers, tissues, cleaning supplies', productCount: 58 },
-  { id: '8', name: 'Shipping & Mailing', slug: 'shipping', description: 'Envelopes, boxes, tape, labels', productCount: 37 },
-]
+import { useCategories } from '@/shared/hooks/use-supabase-data'
 
 function CategoriesPage() {
+  const { categories, loading } = useCategories()
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-7 w-48 rounded bg-surface-active animate-pulse" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-border bg-surface p-6">
+              <div className="h-5 w-32 rounded bg-surface-active animate-pulse" />
+              <div className="mt-2 h-4 w-48 rounded bg-surface-active animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="space-y-6">
       <div>
@@ -45,7 +52,7 @@ function CategoriesPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text">{category.name}</p>
                 <p className="mt-0.5 text-xs text-text-muted">
-                  {category.productCount} products
+                  {category.productCount > 0 ? `${category.productCount} products` : 'Browse products'}
                 </p>
               </div>
               <ChevronRight className="h-4 w-4 text-text-muted" />

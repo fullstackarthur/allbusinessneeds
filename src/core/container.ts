@@ -1,5 +1,5 @@
-import { ProductRepositoryImpl } from '@/data/repositories/product-repository.impl'
-import { CategoryRepositoryImpl } from '@/data/repositories/category-repository.impl'
+import { SupabaseProductRepository } from '@/data/repositories/supabase-product-repository'
+import { SupabaseCategoryRepository } from '@/data/repositories/supabase-category-repository'
 import { CartRepositoryImpl } from '@/data/repositories/cart-repository.impl'
 import { RfqRepositoryImpl } from '@/data/repositories/rfq-repository.impl'
 import { AiRepositoryImpl } from '@/data/repositories/ai-repository.impl'
@@ -37,8 +37,8 @@ import {
   AiSuggestComplementary,
 } from '@/domain/usecases/ai-usecases'
 
-const productRepository = new ProductRepositoryImpl()
-const categoryRepository = new CategoryRepositoryImpl()
+const productRepository = new SupabaseProductRepository()
+const categoryRepository = new SupabaseCategoryRepository()
 const cartRepository = new CartRepositoryImpl()
 const rfqRepository = new RfqRepositoryImpl()
 const aiRepository = new AiRepositoryImpl()
