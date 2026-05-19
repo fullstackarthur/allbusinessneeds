@@ -1,7 +1,11 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/presentation/shells/app-shell'
+import { AuthProvider } from '@/presentation/providers/auth-provider'
+import { ProtectedRoute } from '@/presentation/components/shared/protected-route'
 
 import { LandingPage } from '@/presentation/features/landing-page'
+import { CustomerAuthPage } from '@/presentation/features/customer-auth'
+import { AdminPage } from '@/presentation/features/admin'
 import { HomePage } from '@/presentation/features/home'
 import { CategoriesPage } from '@/presentation/features/categories'
 import { AiCopilotPage } from '@/presentation/features/ai-copilot'
@@ -32,14 +36,42 @@ function RfqReviewRoute() {
   return <RfqWorkflowPage />
 }
 
+function ExperienceShell() {
+  return (
+    <ProtectedRoute>
+      <AppShell />
+    </ProtectedRoute>
+  )
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <LandingPage />,
+    element: (
+      <AuthProvider>
+        <LandingPage />
+      </AuthProvider>
+    ),
+  },
+  {
+    path: '/whoami/customer',
+    element: (
+      <AuthProvider>
+        <CustomerAuthPage />
+      </AuthProvider>
+    ),
+  },
+  {
+    path: '/whoami/admin',
+    element: <AdminPage />,
   },
   {
     path: '/experience',
-    element: <AppShell />,
+    element: (
+      <AuthProvider>
+        <ExperienceShell />
+      </AuthProvider>
+    ),
     errorElement: (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">

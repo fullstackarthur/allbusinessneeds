@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ROUTES } from '@/core/constants'
+import { useAuthStore } from '@/presentation/stores/auth-store'
 import { useRandomProducts } from '@/shared/hooks/use-supabase-data'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ArrowRight, Search, FileText, Sparkles, Package, ClipboardCheck, Truck, Layers, BarChart3, Settings, Zap, Globe } from 'lucide-react'
@@ -24,6 +24,30 @@ function LandingPage() {
   )
 }
 
+function AuthNavButton() {
+  const { user, profile } = useAuthStore()
+
+  if (user && profile?.status === 'approved') {
+    return (
+      <Link
+        to="/experience"
+        className="text-xs font-medium text-[#0033a0] hover:text-[#002a85] transition-colors px-3 py-1.5 rounded border border-[#0033a0]/20 hover:border-[#0033a0]/40"
+      >
+        Access Experiences
+      </Link>
+    )
+  }
+
+  return (
+    <Link
+      to="/whoami/customer"
+      className="text-xs font-medium text-[#0033a0] hover:text-[#002a85] transition-colors px-3 py-1.5 rounded border border-[#0033a0]/20 hover:border-[#0033a0]/40"
+    >
+      Access Experiences
+    </Link>
+  )
+}
+
 function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#faf9f7]/90 backdrop-blur-md border-b border-[#e2e0dc]">
@@ -38,15 +62,22 @@ function Header() {
             <a href="#catalog" className="text-xs text-[#4a5568] hover:text-[#0a1628] transition-colors">Catalog</a>
             <a href="#quotation" className="text-xs text-[#4a5568] hover:text-[#0a1628] transition-colors">Quotation</a>
           </nav>
-          <Link
-            to={ROUTES.EXPERIENCE}
-            className="text-xs font-medium text-[#0033a0] hover:text-[#002a85] transition-colors px-3 py-1.5 rounded border border-[#0033a0]/20 hover:border-[#0033a0]/40"
-          >
-            Access Experiences
-          </Link>
+          <AuthNavButton />
         </div>
       </div>
     </header>
+  )
+}
+
+function AuthLink({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
+  const { user, profile } = useAuthStore()
+  const isAuthed = user && profile?.status === 'approved'
+  const href = isAuthed ? to : '/whoami/customer'
+
+  return (
+    <Link to={href} className={className}>
+      {children}
+    </Link>
   )
 }
 
@@ -67,19 +98,19 @@ function HeroSection() {
               allbusinessneeds enables businesses to source office and operational supplies through a structured procurement workflow designed for purchasing teams. Product discovery, quotation requests, AI-assisted sourcing, procurement coordination, and operational efficiency — unified in one platform.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link
-                to={ROUTES.EXPERIENCE}
+              <AuthLink
+                to="/experience"
                 className="inline-flex items-center gap-2 px-5 py-2 bg-[#0033a0] text-white text-sm font-medium rounded hover:bg-[#002a85] transition-colors"
               >
                 Access Experiences
                 <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-              <Link
-                to={ROUTES.CATEGORIES}
+              </AuthLink>
+              <AuthLink
+                to="/experience/categories"
                 className="inline-flex items-center gap-2 px-5 py-2 border border-[#e2e0dc] text-sm font-medium text-[#0a1628] rounded hover:border-[#c5c3be] transition-colors"
               >
                 Browse Catalog
-              </Link>
+              </AuthLink>
             </div>
           </div>
 
@@ -241,11 +272,13 @@ function AiSourcingSection() {
 }
 
 function ProductCard({ product }: { product: Product }) {
+  const { user, profile } = useAuthStore()
+  const isAuthed = user && profile?.status === 'approved'
   const stockLabel = product.stock === 0 ? 'Out of stock' : product.stock <= 5 ? 'Low stock' : product.stock <= 20 ? 'Limited' : 'In stock'
   const stockColor = product.stock === 0 ? 'text-[#c41e3a]' : product.stock <= 5 ? 'text-[#b8860b]' : 'text-[#2d7a4f]'
 
   return (
-    <Link to={`${ROUTES.EXPERIENCE}/products/${product.id}`} className="group block">
+    <Link to={isAuthed ? `/experience/products/${product.id}` : '/whoami/customer'} className="group block">
       <div className="rounded-lg border border-[#e2e0dc] bg-white p-3 transition-all hover:border-[#c5c3be] hover:shadow-sm h-full flex flex-col">
         <div className="aspect-square bg-[#f5f4f2] rounded mb-2.5 overflow-hidden">
           <img
@@ -279,13 +312,13 @@ function ProductDiscoverySection({ products, loading }: { products: Product[]; l
               The catalog system is optimized for fast scanning, specification visibility, structured sourcing, and procurement clarity.
             </p>
           </div>
-          <Link
-            to={ROUTES.CATEGORIES}
+          <AuthLink
+            to="/experience/categories"
             className="hidden sm:flex items-center gap-1 text-xs text-[#0033a0] hover:text-[#002a85] transition-colors shrink-0 ml-4"
           >
             View catalog
             <ArrowRight className="h-3 w-3" />
-          </Link>
+          </AuthLink>
         </div>
 
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
@@ -303,13 +336,13 @@ function ProductDiscoverySection({ products, loading }: { products: Product[]; l
         </div>
 
         <div className="mt-4 sm:hidden">
-          <Link
-            to={ROUTES.CATEGORIES}
+          <AuthLink
+            to="/experience/categories"
             className="flex items-center gap-1 text-xs text-[#0033a0] hover:text-[#002a85] transition-colors"
           >
             View full catalog
             <ArrowRight className="h-3 w-3" />
-          </Link>
+          </AuthLink>
         </div>
       </div>
     </section>
@@ -448,6 +481,9 @@ function TrustSection() {
 }
 
 function CtaSection() {
+  const { user, profile } = useAuthStore()
+  const experienceLink = user && profile?.status === 'approved' ? '/experience' : '/whoami/customer'
+
   return (
     <section className="py-16 lg:py-20 border-t border-[#e2e0dc]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -460,14 +496,14 @@ function CtaSection() {
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to={ROUTES.EXPERIENCE}
+              to={experienceLink}
               className="inline-flex items-center gap-2 px-5 py-2 bg-[#0033a0] text-white text-sm font-medium rounded hover:bg-[#002a85] transition-colors"
             >
               Begin Sourcing
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
-              to={ROUTES.CATEGORIES}
+              to={experienceLink}
               className="inline-flex items-center gap-2 px-5 py-2 border border-[#e2e0dc] text-sm font-medium text-[#0a1628] rounded hover:border-[#c5c3be] transition-colors"
             >
               Browse Catalog
@@ -480,6 +516,9 @@ function CtaSection() {
 }
 
 function Footer() {
+  const { user, profile } = useAuthStore()
+  const experienceLink = user && profile?.status === 'approved' ? '/experience' : '/whoami/customer'
+
   return (
     <footer className="border-t border-[#e2e0dc] py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -489,8 +528,8 @@ function Footer() {
             <span className="text-xs font-medium text-[#0a1628] tracking-tight">allbusinessneeds</span>
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
-            <Link to={ROUTES.CATEGORIES} className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">Catalog</Link>
-            <Link to={ROUTES.CATEGORIES} className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">Categories</Link>
+            <Link to={experienceLink} className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">Catalog</Link>
+            <Link to={experienceLink} className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">Categories</Link>
             <a href="#workflow" className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">Procurement Support</a>
             <a href="#quotation" className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">RFQ Workflow</a>
             <a href="#" className="text-[10px] text-[#718096] hover:text-[#0a1628] transition-colors">Terms</a>

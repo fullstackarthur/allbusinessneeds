@@ -3,6 +3,7 @@ import { SupabaseCategoryRepository } from '@/data/repositories/supabase-categor
 import { CartRepositoryImpl } from '@/data/repositories/cart-repository.impl'
 import { RfqRepositoryImpl } from '@/data/repositories/rfq-repository.impl'
 import { AiRepositoryImpl } from '@/data/repositories/ai-repository.impl'
+import { SupabaseAuthRepository } from '@/data/repositories/supabase-auth-repository'
 
 import {
   GetProducts,
@@ -37,12 +38,27 @@ import {
   AiAnalyzeProduct,
   AiSuggestComplementary,
 } from '@/domain/usecases/ai-usecases'
+import {
+  SignUp,
+  SignIn,
+  SignOut,
+  GetSession,
+  GetCurrentUser,
+  GetProfile,
+  GetAllProfiles,
+  UpdateProfileStatus,
+  LogVisit,
+  GetVisitCount,
+  GetTopProducts,
+  GetAdminUser,
+} from '@/domain/usecases/auth-usecases'
 
 const productRepository = new SupabaseProductRepository()
 const categoryRepository = new SupabaseCategoryRepository()
 const cartRepository = new CartRepositoryImpl()
 const rfqRepository = new RfqRepositoryImpl()
 const aiRepository = new AiRepositoryImpl()
+const authRepository = new SupabaseAuthRepository()
 
 export const useCases = {
   products: {
@@ -77,5 +93,19 @@ export const useCases = {
     chat: new AiChat(aiRepository),
     analyzeProduct: new AiAnalyzeProduct(aiRepository),
     suggestComplementary: new AiSuggestComplementary(aiRepository),
+  },
+  auth: {
+    signUp: new SignUp(authRepository),
+    signIn: new SignIn(authRepository),
+    signOut: new SignOut(authRepository),
+    getSession: new GetSession(authRepository),
+    getCurrentUser: new GetCurrentUser(authRepository),
+    getProfile: new GetProfile(authRepository),
+    getAllProfiles: new GetAllProfiles(authRepository),
+    updateProfileStatus: new UpdateProfileStatus(authRepository),
+    logVisit: new LogVisit(authRepository),
+    getVisitCount: new GetVisitCount(authRepository),
+    getTopProducts: new GetTopProducts(authRepository),
+    getAdminUser: new GetAdminUser(authRepository),
   },
 } as const
