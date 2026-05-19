@@ -5,10 +5,12 @@ import type { Product } from '@/domain/entities'
 function ProductCardCompact({
   product,
   onAddToRfq,
+  onView,
   className,
 }: {
   product: Product
   onAddToRfq?: (product: Product) => void
+  onView?: (product: Product) => void
   className?: string
 }) {
   const stockLabel = product.stock === 0
@@ -30,17 +32,26 @@ function ProductCardCompact({
         className,
       )}
     >
-      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface-active">
+      <button
+        onClick={() => onView?.(product)}
+        className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface-active"
+        aria-label={`View ${product.name}`}
+      >
         <img
           src={product.thumbnail}
           alt={product.name}
           className="h-full w-full object-cover"
           loading="lazy"
         />
-      </div>
+      </button>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-text truncate">{product.name}</p>
+        <button
+          onClick={() => onView?.(product)}
+          className="text-sm font-medium text-text truncate text-left hover:text-primary transition-colors"
+        >
+          {product.name}
+        </button>
         <div className="mt-0.5 flex items-center gap-2 text-xs text-text-muted">
           <span>SKU: {product.sku}</span>
           <span>&middot;</span>
