@@ -28,7 +28,7 @@ function ProductCardCompact({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-border-strong',
+        'flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-border-strong min-w-0',
         className,
       )}
     >
@@ -48,25 +48,25 @@ function ProductCardCompact({
       <div className="flex-1 min-w-0">
         <button
           onClick={() => onView?.(product)}
-          className="text-sm font-medium text-text truncate text-left hover:text-primary transition-colors"
+          className="text-sm font-medium text-text truncate text-left hover:text-primary transition-colors w-full"
         >
           {product.name}
         </button>
         <div className="mt-0.5 flex items-center gap-2 text-xs text-text-muted">
-          <span>SKU: {product.sku}</span>
-          <span>&middot;</span>
-          <span className={cn('font-medium', stockColor)}>{stockLabel}</span>
+          <span className="truncate">SKU: {product.sku}</span>
+          <span className="shrink-0">&middot;</span>
+          <span className={cn('font-medium shrink-0', stockColor)}>{stockLabel}</span>
         </div>
       </div>
 
-      <div className="flex flex-col items-end gap-1.5">
-        <span className="text-sm font-semibold text-text">
+      <div className="flex flex-col items-end gap-1.5 shrink-0">
+        <span className="text-sm font-semibold text-text whitespace-nowrap">
           {formatCurrency(product.price, product.currency)}
         </span>
         {onAddToRfq && product.stock > 0 && (
           <button
             onClick={() => onAddToRfq(product)}
-            className="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
+            className="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors whitespace-nowrap"
           >
             Add to RFQ
           </button>

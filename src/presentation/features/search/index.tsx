@@ -6,15 +6,17 @@ import { useProductFilters } from '@/shared/hooks/use-product-filters'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useSearchProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
-import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal } from 'lucide-react'
+import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal, X } from 'lucide-react'
 import * as React from 'react'
 
 function SearchPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const query = searchParams.get('q') || ''
+  const [inputValue, setInputValue] = React.useState(query)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
   const [filterDrawerOpen, setFilterDrawerOpen] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
   const { results: searchResults, loading: searchLoading } = useSearchProducts(query, 50)
 
@@ -33,8 +35,54 @@ function SearchPage() {
     navigate(`/products/${product.id}`)
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (inputValue.trim()) {
+      setSearchParams({ q: inputValue.trim() })
+    } else {
+      setSearchParams({})
+    }
+  }
+
+  const handleClear = () => {
+    setInputValue('')
+    setSearchParams({})
+    inputRef.current?.focus()
+  }
+
+  React.useEffect(() => {
+    setInputValue(query)
+  }, [query])
+
   return (
     <div className="space-y-4">
+      {/* Mobile Search Input */}
+      <div className="lg:hidden">
+        <form onSubmit={handleSearch} className="relative">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Search products, SKUs, categories..."
+            className="w-full h-11 pl-10 pr-10 rounded-lg border border-border bg-surface text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            autoFocus
+          />
+          {inputValue && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-surface-active transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4 text-text-muted" />
+            </button>
+          )}
+        </form>
+      </div>
+
+      {/* Breadcrumb & Title */}
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <Link to="/" className="hover:text-text transition-colors">Home</Link>

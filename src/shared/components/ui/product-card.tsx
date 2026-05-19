@@ -19,26 +19,17 @@ function getStockStatus(product: Product) {
   return { label: 'In stock', variant: 'success' as const }
 }
 
-function getPrimarySpec(product: Product): string | null {
-  const attrs = product.attributes
-  const keys = Object.keys(attrs)
-  if (keys.length === 0) return null
-  const primary = keys[0]
-  return `${primary}: ${attrs[primary]}`
-}
-
 const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
   ({ className, product, onAddToRfq, onView, compact = false, ...props }, ref) => {
     const [quantity, setQuantity] = React.useState(product.minOrderQuantity)
     const stock = getStockStatus(product)
-    const spec = getPrimarySpec(product)
     const isOutOfStock = product.stock === 0
 
     return (
       <div
         ref={ref}
         className={cn(
-          'group rounded-lg border border-border bg-surface transition-all duration-150 hover:shadow-md hover:border-border-strong',
+          'group rounded-lg border border-border bg-surface transition-all duration-150 hover:shadow-md hover:border-border-strong flex flex-col',
           className,
         )}
         {...props}
@@ -66,89 +57,89 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
           </div>
         </button>
 
-        <div className={cn('p-3', compact && 'p-2.5')}>
-          {product.brand && (
-            <p className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
-              {product.brand}
-            </p>
-          )}
-
+        <div className={cn('p-2.5 flex flex-col flex-1', compact && 'p-2')}>
           <button
             onClick={() => onView?.(product)}
-            className="mt-0.5 text-left text-sm font-medium text-text line-clamp-2 leading-snug hover:text-primary transition-colors"
+            className="text-left text-sm font-medium text-text line-clamp-2 leading-snug hover:text-primary transition-colors min-h-[2.5rem]"
           >
             {product.name}
           </button>
 
-          {spec && (
-            <p className="mt-1 text-xs text-text-secondary truncate">
-              {spec}
-            </p>
-          )}
+          <div className="mt-auto pt-2">
+            <div className="flex items-baseline gap-1">
+              <span className={cn('font-semibold text-text', compact ? 'text-sm' : 'text-base')}>
+                {formatCurrency(product.price, product.currency)}
+              </span>
+              <span className="text-xs text-text-muted">/ unit</span>
+            </div>
 
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-base font-semibold text-text">
-              {formatCurrency(product.price, product.currency)}
-            </span>
-            <span className="text-xs text-text-muted">/ unit</span>
-          </div>
+            {!compact && (
+              <div className="mt-1 flex items-center gap-2 text-xs text-text-muted min-w-0">
+                <span className="truncate">SKU: {product.sku}</span>
+                <span className="shrink-0">&middot;</span>
+                <span className="shrink-0">Min. {product.minOrderQuantity}</span>
+              </div>
+            )}
 
-          <div className="mt-1 flex items-center gap-2 text-xs text-text-muted">
-            <span>SKU: {product.sku}</span>
-            <span>&middot;</span>
-            <span>Min. {product.minOrderQuantity}</span>
-          </div>
+            {!isOutOfStock && onAddToRfq && (
+              <div className={cn('mt-2 flex items-center gap-1.5', compact && 'mt-1.5')}>
+                {!compact && (
+                  <div className="flex items-center rounded-md border border-border bg-surface shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setQuantity((q) => Math.max(product.minOrderQuantity, q - 1))
+                      }}
+                      className="flex h-7 w-7 items-center justify-center text-text-muted hover:text-text transition-colors rounded-l-md text-xs"
+                      aria-label="Decrease quantity"
+                    >
+                      -
+                    </button>
+                    <span className="w-8 text-center text-xs font-medium tabular-nums">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setQuantity((q) => q + 1)
+                      }}
+                      className="flex h-7 w-7 items-center justify-center text-text-muted hover:text-text transition-colors rounded-r-md text-xs"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
 
-          {!isOutOfStock && onAddToRfq && (
-            <div className="mt-3 flex items-center gap-2">
-              <div className="flex items-center rounded-md border border-border bg-surface">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    setQuantity((q) => Math.max(product.minOrderQuantity, q - 1))
+                    onAddToRfq(product, quantity)
                   }}
-                  className="flex h-8 w-8 items-center justify-center text-text-muted hover:text-text transition-colors rounded-l-md"
-                  aria-label="Decrease quantity"
+                  className={cn(
+                    'flex items-center justify-center gap-1 rounded-md bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active transition-colors',
+                    compact ? 'flex-1 px-2 py-1.5 text-xs' : 'flex-1 px-3 py-2 text-sm',
+                  )}
                 >
-                  -
-                </button>
-                <span className="w-10 text-center text-sm font-medium tabular-nums">
-                  {quantity}
-                </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setQuantity((q) => q + 1)
-                  }}
-                  className="flex h-8 w-8 items-center justify-center text-text-muted hover:text-text transition-colors rounded-r-md"
-                  aria-label="Increase quantity"
-                >
-                  +
+                  <Plus className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
+                  <span className="truncate">RFQ</span>
                 </button>
               </div>
+            )}
 
+            {isOutOfStock && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onAddToRfq(product, quantity)
-                }}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover active:bg-primary-active transition-colors"
+                disabled
+                className={cn(
+                  'mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-border bg-surface-active text-text-muted cursor-not-allowed',
+                  compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm',
+                )}
               >
-                <Plus className="h-3.5 w-3.5" />
-                RFQ
+                <AlertCircle className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
+                <span className="truncate">Unavailable</span>
               </button>
-            </div>
-          )}
-
-          {isOutOfStock && (
-            <button
-              disabled
-              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-border bg-surface-active px-3 py-2 text-sm text-text-muted cursor-not-allowed"
-            >
-              <AlertCircle className="h-3.5 w-3.5" />
-              Unavailable
-            </button>
-          )}
+            )}
+          </div>
         </div>
       </div>
     )

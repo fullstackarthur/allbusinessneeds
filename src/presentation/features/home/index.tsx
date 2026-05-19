@@ -177,6 +177,7 @@ function HomePage() {
                 product={product}
                 onAddToRfq={handleAddToRfq}
                 onView={handleViewProduct}
+                compact
               />
             ))}
           </div>
@@ -206,7 +207,7 @@ function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div className="mt-4 grid gap-2 grid-cols-1 sm:grid-cols-2">
             {compactProducts.map((product) => (
               <ProductCardCompact
                 key={product.id}
@@ -221,11 +222,13 @@ function HomePage() {
 
       {/* Recently Viewed */}
       {recentlyViewed.length > 0 && (
-        <section>
-          <h2 className="text-base font-semibold text-text">Recently Viewed</h2>
-          <div className="mt-4 flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        <section className="sm:-mx-0">
+          <div className="px-4 sm:px-0">
+            <h2 className="text-base font-semibold text-text">Recently Viewed</h2>
+          </div>
+          <div className="mt-4 flex gap-3 overflow-x-auto pb-4 sm:px-0 snap-x snap-mandatory scrollbar-none">
             {recentlyViewed.map((product) => (
-              <div key={product.id} className="w-36 shrink-0">
+              <div key={product.id} className="w-[160px] sm:w-[180px] shrink-0 snap-start">
                 <ProductCard
                   product={product}
                   onAddToRfq={handleAddToRfq}
