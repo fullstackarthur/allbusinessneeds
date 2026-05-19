@@ -112,7 +112,7 @@ function RfqHistoryPage() {
             Track and manage your procurement requests
           </p>
         </div>
-        <Link to="/rfq/review">
+        <Link to={ROUTES.RFQ_REVIEW}>
           <Button size="sm">
             <Plus className="mr-1.5 h-4 w-4" />
             New RFQ
@@ -153,7 +153,7 @@ function RfqHistoryPage() {
           description="Your procurement requests will appear here"
           icon={<FileText className="h-8 w-8" />}
           action={
-            <Link to={ROUTES.HOME}>
+            <Link to={ROUTES.EXPERIENCE_HOME}>
               <Button>
                 <Plus className="mr-1.5 h-4 w-4" />
                 Create First RFQ

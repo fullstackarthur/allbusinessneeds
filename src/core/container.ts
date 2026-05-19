@@ -9,6 +9,7 @@ import {
   GetProductById,
   GetRelatedProducts,
   SearchProducts,
+  GetRandomProducts,
 } from '@/domain/usecases/product-usecases'
 import {
   GetCategories,
@@ -49,6 +50,7 @@ export const useCases = {
     getById: new GetProductById(productRepository),
     getRelated: new GetRelatedProducts(productRepository),
     search: new SearchProducts(productRepository),
+    getRandom: new GetRandomProducts(productRepository),
   },
   categories: {
     getAll: new GetCategories(categoryRepository),

@@ -233,3 +233,38 @@ export function useCategoryBySlug(slug: string) {
 
   return { category, loading, error }
 }
+
+export function useRandomProducts(limit = 8) {
+  const [products, setProducts] = React.useState<Product[]>(EMPTY_PRODUCTS)
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    getUseCases()
+      .then((useCases) => useCases.products.getRandom.execute(limit))
+      .then((result) => {
+        if (!cancelled) {
+          setProducts(result)
+          setLoading(false)
+        }
+      })
+      .catch((err: unknown) => {
+        console.error('[useRandomProducts] Failed:', err)
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load products')
+          setProducts(EMPTY_PRODUCTS)
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [limit])
+
+  return { products, loading, error }
+}

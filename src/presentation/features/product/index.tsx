@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { Button } from '@/shared/components/ui/button'
 import { ProductCard } from '@/shared/components/ui/product-card'
 import { ProductCardSkeleton, Skeleton } from '@/shared/components/ui/skeleton'
@@ -68,7 +69,7 @@ function ProductDetailPage() {
         description="The product you are looking for does not exist or has been removed"
         icon={<Package className="h-8 w-8" />}
         action={
-          <Link to="/">
+          <Link to={ROUTES.EXPERIENCE_HOME}>
             <Button>Browse Catalog</Button>
           </Link>
         }
@@ -98,9 +99,9 @@ function ProductDetailPage() {
     <div className="space-y-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-text-muted">
-        <Link to="/" className="hover:text-text transition-colors">Home</Link>
+        <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to={`/categories/${product.category}`} className="hover:text-text transition-colors capitalize">
+        <Link to={`${ROUTES.CATEGORIES}/${product.category}`} className="hover:text-text transition-colors capitalize">
           {product.category}
         </Link>
         <ChevronRight className="h-3 w-3" />
@@ -230,7 +231,7 @@ function ProductDetailPage() {
           </div>
 
           {/* AI Sourcing CTA */}
-          <Link to="/ai">
+          <Link to={ROUTES.AI_COPILOT}>
             <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary-muted/50 p-4 hover:border-primary/40 transition-colors cursor-pointer">
               <Sparkles className="h-5 w-5 text-primary" />
               <div>

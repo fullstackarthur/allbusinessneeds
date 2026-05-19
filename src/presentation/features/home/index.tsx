@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { ProductCard } from '@/shared/components/ui/product-card'
 import { ProductCardCompact } from '@/shared/components/ui/product-card-compact'
 import { ProductCardSkeleton } from '@/shared/components/ui/skeleton'
@@ -50,7 +51,7 @@ function HomePage() {
   }
 
   const handleViewProduct = (product: Product) => {
-    navigate(`/products/${product.id}`)
+    navigate(`/experience/products/${product.id}`)
   }
 
   return (
@@ -68,7 +69,7 @@ function HomePage() {
           <button
             onClick={() => {
               if (isMobile) {
-                navigate('/search')
+                navigate(ROUTES.SEARCH)
               } else {
                 setSearchOpen(true)
               }
@@ -83,13 +84,13 @@ function HomePage() {
           </button>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link to="/ai">
+            <Link to={ROUTES.AI_COPILOT}>
               <Button variant="outline" size="sm" className="gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 AI Sourcing
               </Button>
             </Link>
-            <Link to="/rfqs">
+            <Link to={ROUTES.RFQS}>
               <Button variant="outline" size="sm" className="gap-1.5">
                 <FileText className="h-3.5 w-3.5" />
                 My RFQs
@@ -108,7 +109,7 @@ function HomePage() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-text">Browse Categories</h2>
           <Link
-            to="/categories"
+            to={ROUTES.CATEGORIES}
             className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
           >
             View all
@@ -132,7 +133,7 @@ function HomePage() {
             displayCategories.map((cat) => (
               <Link
                 key={cat.id}
-                to={`/categories/${cat.slug}`}
+                to={`${ROUTES.CATEGORIES}/${cat.slug}`}
                 className="group flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center transition-all duration-150 hover:border-border-strong hover:shadow-sm"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-muted text-lg">
@@ -155,7 +156,7 @@ function HomePage() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-text">Featured Supplies</h2>
           <Link
-            to="/search"
+            to={ROUTES.SEARCH}
             className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
           >
             Browse all
@@ -192,7 +193,7 @@ function HomePage() {
             <p className="mt-0.5 text-sm text-text-secondary">Popular items for fast procurement</p>
           </div>
           <Link
-            to="/search"
+            to={ROUTES.SEARCH}
             className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
           >
             View all
@@ -253,7 +254,7 @@ function HomePage() {
               Get intelligent product recommendations, pricing insights, and supplier alternatives
             </p>
           </div>
-          <Link to="/ai">
+            <Link to={ROUTES.AI_COPILOT}>
             <Button className="shrink-0">
               Start Sourcing
               <ArrowRight className="ml-1.5 h-4 w-4" />

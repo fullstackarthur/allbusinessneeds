@@ -1,7 +1,7 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/presentation/shells/app-shell'
-import { ROUTES } from '@/core/constants'
 
+import { LandingPage } from '@/presentation/features/landing-page'
 import { HomePage } from '@/presentation/features/home'
 import { CategoriesPage } from '@/presentation/features/categories'
 import { AiCopilotPage } from '@/presentation/features/ai-copilot'
@@ -34,6 +34,11 @@ function RfqReviewRoute() {
 
 export const router = createBrowserRouter([
   {
+    path: '/',
+    element: <LandingPage />,
+  },
+  {
+    path: '/experience',
     element: <AppShell />,
     errorElement: (
       <div className="flex min-h-screen items-center justify-center">
@@ -44,21 +49,25 @@ export const router = createBrowserRouter([
       </div>
     ),
     children: [
-      { path: ROUTES.HOME, element: <HomePage /> },
-      { path: ROUTES.CATEGORIES, element: <CategoriesPage /> },
-      { path: ROUTES.AI_COPILOT, element: <AiCopilotPage /> },
-      { path: ROUTES.RFQS, element: <RfqHistoryPage /> },
-      { path: ROUTES.RFQ_WORKFLOW, element: <RfqWorkflowPage /> },
-      { path: ROUTES.RFQ_REVIEW, element: <RfqReviewRoute /> },
-      { path: ROUTES.CART, element: <CartRoute /> },
-      { path: ROUTES.CHECKOUT, element: <CheckoutRoute /> },
-      { path: ROUTES.ACCOUNT, element: <AccountPage /> },
-      { path: ROUTES.PRODUCT, element: <ProductDetailPage /> },
-      { path: '/products', element: <ProductListingPage /> },
-      { path: '/categories/:slug', element: <ProductListingPage /> },
-      { path: '/search', element: <SearchPage /> },
-      { path: '/brands', element: <BrandsPage /> },
-      { path: '/brands/:id', element: <ProductListingPage /> },
+      { index: true, element: <HomePage /> },
+      { path: 'categories', element: <CategoriesPage /> },
+      { path: 'ai', element: <AiCopilotPage /> },
+      { path: 'rfqs', element: <RfqHistoryPage /> },
+      { path: 'rfq', element: <RfqWorkflowPage /> },
+      { path: 'rfq/review', element: <RfqReviewRoute /> },
+      { path: 'cart', element: <CartRoute /> },
+      { path: 'checkout', element: <CheckoutRoute /> },
+      { path: 'account', element: <AccountPage /> },
+      { path: 'products/:id', element: <ProductDetailPage /> },
+      { path: 'products', element: <ProductListingPage /> },
+      { path: 'categories/:slug', element: <ProductListingPage /> },
+      { path: 'search', element: <SearchPage /> },
+      { path: 'brands', element: <BrandsPage /> },
+      { path: 'brands/:id', element: <ProductListingPage /> },
     ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   },
 ])

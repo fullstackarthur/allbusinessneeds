@@ -122,4 +122,19 @@ export class SupabaseProductRepository implements ProductRepository {
 
     return (data as ProductListingDto[] || []).map(SupabaseMapper.toProductEntity)
   }
+
+  async getRandom(limit = 8): Promise<Product[]> {
+    const { data, error } = await supabase
+      .from('product_listing')
+      .select('*', { count: 'exact' })
+
+    if (error) {
+      console.error('[SupabaseProductRepository.getRandom] Query error:', error)
+      throw new Error(`Random products query failed: ${error.message}`)
+    }
+
+    const all = data as ProductListingDto[] || []
+    const shuffled = all.sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, limit).map(SupabaseMapper.toProductEntity)
+  }
 }

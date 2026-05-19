@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { label: 'Home', icon: Home, href: ROUTES.HOME, action: null },
+  { label: 'Home', icon: Home, href: ROUTES.EXPERIENCE_HOME, action: null },
   { label: 'Categories', icon: Grid3X3, href: ROUTES.CATEGORIES, action: null },
   { label: 'AI', icon: Sparkles, href: ROUTES.AI_COPILOT, action: 'open-ai' },
   { label: 'RFQs', icon: FileText, href: ROUTES.RFQS, action: null },
@@ -97,7 +97,7 @@ function DesktopHeader() {
 
   const handleSearchClick = () => {
     if (isMobile) {
-      navigate('/search')
+      navigate(ROUTES.SEARCH)
     } else {
       setSearchOpen(true)
     }
@@ -107,7 +107,7 @@ function DesktopHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-sm">
       <div className="container-safe flex h-14 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link to={ROUTES.HOME} className="flex items-center gap-2">
+          <Link to={ROUTES.EXPERIENCE_HOME} className="flex items-center gap-2">
             <img src="/favicon.svg" alt="ABN" className="h-7 w-7" />
             <span className="hidden text-base font-semibold text-text sm:inline-block">
               All Business Needs

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { cn } from '@/shared/lib/utils'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { Grid3X3, ChevronRight } from 'lucide-react'
@@ -41,7 +42,7 @@ function CategoriesPage() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/categories/${category.slug}`}
+              to={`${ROUTES.CATEGORIES}/${category.slug}`}
               className={cn(
                 'flex items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-all duration-150 hover:border-border-strong hover:shadow-sm',
               )}

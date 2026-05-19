@@ -102,7 +102,7 @@ function RfqCartPage() {
           <p className="mt-1 text-sm text-text-secondary max-w-sm">
             Browse our catalog and add products to request quotations from suppliers
           </p>
-          <Link to={ROUTES.HOME} className="mt-4">
+          <Link to={ROUTES.EXPERIENCE_HOME} className="mt-4">
             <Button>Browse Catalog</Button>
           </Link>
         </div>
@@ -220,7 +220,7 @@ function RfqCartPage() {
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Link to={ROUTES.HOME} className="flex-1">
+            <Link to={ROUTES.EXPERIENCE_HOME} className="flex-1">
               <Button variant="outline" className="w-full">
                 Add More Items
               </Button>

@@ -48,3 +48,15 @@ export class SearchProducts {
     return this.repository.search(query, limit)
   }
 }
+
+export class GetRandomProducts {
+  repository: ProductRepository
+
+  constructor(repository: ProductRepository) {
+    this.repository = repository
+  }
+
+  async execute(limit = 8): Promise<Product[]> {
+    return this.repository.getRandom(limit)
+  }
+}

@@ -1,4 +1,5 @@
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { EmptyState } from '@/shared/components/ui/empty-state'
@@ -32,7 +33,7 @@ function SearchPage() {
   }
 
   const handleViewProduct = (product: Product) => {
-    navigate(`/products/${product.id}`)
+    navigate(`/experience/products/${product.id}`)
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -85,7 +86,7 @@ function SearchPage() {
       {/* Breadcrumb & Title */}
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to="/" className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           <span className="text-text">Search</span>
         </div>
@@ -173,7 +174,7 @@ function SearchPage() {
           description={`No products match "${query}". Try searching by SKU, brand, or category.`}
           icon={<SearchIcon className="h-8 w-8" />}
           action={
-            <Link to="/">
+            <Link to={ROUTES.EXPERIENCE_HOME}>
               <Button variant="outline">Browse Catalog</Button>
             </Link>
           }

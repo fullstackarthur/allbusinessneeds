@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { ProductCard, ProductCardSkeleton } from '@/shared/components/ui'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useProducts } from '@/shared/hooks/use-supabase-data'
@@ -19,7 +20,7 @@ function BrandsPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to="/" className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           <span className="text-text">Brands</span>
         </div>
@@ -33,7 +34,7 @@ function BrandsPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-text">Featured Products</h2>
           <Link
-            to="/search"
+            to={ROUTES.SEARCH}
             className="flex items-center gap-1 text-sm text-primary hover:text-primary-hover transition-colors"
           >
             View all

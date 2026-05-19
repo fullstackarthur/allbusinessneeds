@@ -6,23 +6,27 @@ export const API_VERSION = 'v1'
 export const API_TIMEOUT = 15000
 export const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || ''
 
+const EXP = '/experience' as const
+
 export const ROUTES = {
   HOME: '/',
-  CATEGORIES: '/categories',
-  AI_COPILOT: '/ai',
-  RFQS: '/rfqs',
-  RFQ_WORKFLOW: '/rfq',
-  RFQ_REVIEW: '/rfq/review',
-  RFQ_DETAIL: '/rfqs/:id',
-  RFQ_CREATE: '/rfq',
-  ACCOUNT: '/account',
-  ACCOUNT_ORDERS: '/account/orders',
-  ACCOUNT_ORDERS_DETAIL: '/account/orders/:id',
-  ACCOUNT_SETTINGS: '/account/settings',
-  PRODUCT: '/products/:id',
-  CART: '/cart',
-  CHECKOUT: '/checkout',
-  SEARCH: '/search',
+  EXPERIENCE: EXP,
+  EXPERIENCE_HOME: EXP,
+  CATEGORIES: `${EXP}/categories`,
+  AI_COPILOT: `${EXP}/ai`,
+  RFQS: `${EXP}/rfqs`,
+  RFQ_WORKFLOW: `${EXP}/rfq`,
+  RFQ_REVIEW: `${EXP}/rfq/review`,
+  RFQ_DETAIL: `${EXP}/rfqs/:id`,
+  RFQ_CREATE: `${EXP}/rfq`,
+  ACCOUNT: `${EXP}/account`,
+  ACCOUNT_ORDERS: `${EXP}/account/orders`,
+  ACCOUNT_ORDERS_DETAIL: `${EXP}/account/orders/:id`,
+  ACCOUNT_SETTINGS: `${EXP}/account/settings`,
+  PRODUCT: `${EXP}/products/:id`,
+  CART: `${EXP}/cart`,
+  CHECKOUT: `${EXP}/checkout`,
+  SEARCH: `${EXP}/search`,
 } as const
 
 export const BREAKPOINTS = {

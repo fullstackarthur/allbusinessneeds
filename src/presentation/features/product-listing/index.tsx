@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
@@ -43,7 +44,7 @@ function ProductListingPage() {
   }
 
   const handleViewProduct = (product: Product) => {
-    navigate(`/products/${product.id}`)
+    navigate(`/experience/products/${product.id}`)
   }
 
   const handleApplyFilters = () => {
@@ -55,11 +56,11 @@ function ProductListingPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to="/" className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           {category ? (
             <>
-              <Link to="/categories" className="hover:text-text transition-colors">Categories</Link>
+              <Link to={ROUTES.CATEGORIES} className="hover:text-text transition-colors">Categories</Link>
               <span>/</span>
               <span className="text-text">{category.name}</span>
             </>
