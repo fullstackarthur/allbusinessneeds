@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { AttachmentUploader } from '@/shared/components/ui/attachment-uploader'
+import { PdfPreviewModal } from '@/shared/components/ui/pdf-preview'
 import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
 import type { RfqContact, RfqDelivery } from '@/core/types/rfq-schemas'
 import { ROUTES } from '@/core/constants'
@@ -10,18 +12,27 @@ import {
   User,
   MapPin,
   AlertCircle,
+  Paperclip,
+  Eye,
 } from 'lucide-react'
 import * as React from 'react'
 
 function RfqDetailsPage() {
   const contact = useRfqWorkflowStore((state) => state.contact)
   const delivery = useRfqWorkflowStore((state) => state.delivery)
+  const attachments = useRfqWorkflowStore((state) => state.attachments)
   const setContact = useRfqWorkflowStore((state) => state.setContact)
   const setDelivery = useRfqWorkflowStore((state) => state.setDelivery)
+  const setAttachments = useRfqWorkflowStore((state) => state.setAttachments)
   const setStep = useRfqWorkflowStore((state) => state.setStep)
+  const items = useRfqWorkflowStore((state) => state.items)
+  const notes = useRfqWorkflowStore((state) => state.notes)
+  const urgency = useRfqWorkflowStore((state) => state.urgency)
+  const budgetRange = useRfqWorkflowStore((state) => state.budgetRange)
+  const getEstimatedTotal = useRfqWorkflowStore((state) => state.getEstimatedTotal)
+  const getCategories = useRfqWorkflowStore((state) => state.getCategories)
   const error = useRfqWorkflowStore((state) => state.error)
   const clearError = useRfqWorkflowStore((state) => state.clearError)
-  const items = useRfqWorkflowStore((state) => state.items)
 
   const [formData, setFormData] = React.useState<RfqContact>({
     full_name: contact?.full_name || '',
@@ -45,6 +56,7 @@ function RfqDetailsPage() {
 
   const [showDelivery, setShowDelivery] = React.useState(delivery !== null)
   const [errors, setErrors] = React.useState<Record<string, string>>({})
+  const [showPdfPreview, setShowPdfPreview] = React.useState(false)
 
   const validateContact = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -61,16 +73,24 @@ function RfqDetailsPage() {
 
   const handleContinue = () => {
     clearError()
-
     if (!validateContact()) return
 
     setContact(formData)
-
-    if (showDelivery) {
-      setDelivery(deliveryData)
-    }
-
+    if (showDelivery) setDelivery(deliveryData)
     setStep('confirmation')
+  }
+
+  const pdfData = {
+    reference: 'PREVIEW',
+    date: new Date().toLocaleDateString(),
+    items,
+    contact: formData,
+    delivery: showDelivery ? deliveryData : null,
+    notes,
+    urgency,
+    budgetRange: budgetRange || undefined,
+    estimatedTotal: getEstimatedTotal(),
+    categories: getCategories(),
   }
 
   if (items.length === 0) {
@@ -117,10 +137,16 @@ function RfqDetailsPage() {
             Provide your details so we can prepare your quotation
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setStep('review')}>
-          <ArrowLeft className="mr-1.5 h-4 w-4" />
-          Back
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowPdfPreview(true)}>
+            <Eye className="mr-1.5 h-4 w-4" />
+            Preview
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setStep('review')}>
+            <ArrowLeft className="mr-1.5 h-4 w-4" />
+            Back
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -326,6 +352,24 @@ function RfqDetailsPage() {
         )}
       </div>
 
+      {/* Attachments */}
+      <div className="rounded-lg border border-border bg-surface p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Paperclip className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-text">Procurement Files</h3>
+          <span className="text-xs text-text-muted">(optional)</span>
+        </div>
+        <p className="text-xs text-text-secondary">
+          Upload specifications, drawings, or any relevant documents
+        </p>
+        <AttachmentUploader
+          files={attachments}
+          onFilesChange={setAttachments}
+          maxFiles={5}
+          maxSizeMB={10}
+        />
+      </div>
+
       {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" onClick={() => setStep('review')} className="flex-1">
@@ -336,6 +380,13 @@ function RfqDetailsPage() {
           <ChevronRight className="ml-1.5 h-4 w-4" />
         </Button>
       </div>
+
+      {/* PDF Preview Modal */}
+      <PdfPreviewModal
+        data={pdfData}
+        open={showPdfPreview}
+        onClose={() => setShowPdfPreview(false)}
+      />
     </div>
   )
 }

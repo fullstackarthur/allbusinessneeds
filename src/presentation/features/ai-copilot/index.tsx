@@ -1,4 +1,3 @@
-import { AiCopilotPanel } from '@/presentation/components/shared/ai-copilot-panel'
 import { useAiStore } from '@/presentation/stores/ai-store'
 import { Button } from '@/shared/components/ui/button'
 import { Sparkles, MessageSquare, Package, FileText, TrendingUp } from 'lucide-react'
@@ -30,7 +29,7 @@ function AiCopilotPage() {
   const setOpen = useAiStore((state) => state.setOpen)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-xl font-semibold text-text">AI Sourcing Copilot</h1>
         <p className="mt-1 text-sm text-text-secondary">
@@ -39,7 +38,7 @@ function AiCopilotPage() {
       </div>
 
       {/* Main CTA */}
-      <div className="rounded-xl border border-border bg-surface p-6 sm:p-8">
+      <div className="rounded-xl border border-border bg-surface p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary">
             <Sparkles className="h-6 w-6 text-primary-foreground" />
@@ -101,9 +100,6 @@ function AiCopilotPage() {
           ))}
         </div>
       </div>
-
-      {/* AI Panel */}
-      <AiCopilotPanel />
     </div>
   )
 }

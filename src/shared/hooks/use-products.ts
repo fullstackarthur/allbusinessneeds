@@ -10,7 +10,7 @@ const mockProducts: Product[] = [
     category: 'paper',
     brand: 'PaperPro',
     price: 24.99,
-    currency: 'USD',
+    currency: 'INR',
     stock: 150,
     minOrderQuantity: 1,
     images: [
@@ -33,7 +33,7 @@ const mockProducts: Product[] = [
     category: 'writing',
     brand: 'WriteWell',
     price: 12.50,
-    currency: 'USD',
+    currency: 'INR',
     stock: 3,
     minOrderQuantity: 1,
     images: [
@@ -55,7 +55,7 @@ const mockProducts: Product[] = [
     category: 'organization',
     brand: 'EcoDesk',
     price: 34.00,
-    currency: 'USD',
+    currency: 'INR',
     stock: 0,
     minOrderQuantity: 1,
     images: [
@@ -76,7 +76,7 @@ const mockProducts: Product[] = [
     category: 'paper',
     brand: 'NoteMaster',
     price: 8.99,
-    currency: 'USD',
+    currency: 'INR',
     stock: 200,
     minOrderQuantity: 2,
     images: [
@@ -97,7 +97,7 @@ const mockProducts: Product[] = [
     category: 'clips',
     brand: 'ClipPro',
     price: 6.75,
-    currency: 'USD',
+    currency: 'INR',
     stock: 500,
     minOrderQuantity: 1,
     images: [
@@ -118,7 +118,7 @@ const mockProducts: Product[] = [
     category: 'writing',
     brand: 'MarkIt',
     price: 15.99,
-    currency: 'USD',
+    currency: 'INR',
     stock: 75,
     minOrderQuantity: 1,
     images: [
@@ -139,7 +139,7 @@ const mockProducts: Product[] = [
     category: 'paper',
     brand: 'PaperPro',
     price: 14.50,
-    currency: 'USD',
+    currency: 'INR',
     stock: 89,
     minOrderQuantity: 2,
     images: [
@@ -160,7 +160,7 @@ const mockProducts: Product[] = [
     category: 'writing',
     brand: 'WriteWell',
     price: 18.00,
-    currency: 'USD',
+    currency: 'INR',
     stock: 120,
     minOrderQuantity: 1,
     images: [
@@ -181,7 +181,7 @@ const mockProducts: Product[] = [
     category: 'organization',
     brand: 'FilePro',
     price: 22.00,
-    currency: 'USD',
+    currency: 'INR',
     stock: 45,
     minOrderQuantity: 1,
     images: [
@@ -202,7 +202,7 @@ const mockProducts: Product[] = [
     category: 'desk',
     brand: 'CorrectIt',
     price: 9.50,
-    currency: 'USD',
+    currency: 'INR',
     stock: 180,
     minOrderQuantity: 1,
     images: [
@@ -223,7 +223,7 @@ const mockProducts: Product[] = [
     category: 'shipping',
     brand: 'EcoMail',
     price: 19.99,
-    currency: 'USD',
+    currency: 'INR',
     stock: 250,
     minOrderQuantity: 1,
     images: [
@@ -244,7 +244,7 @@ const mockProducts: Product[] = [
     category: 'desk',
     brand: 'StapleMax',
     price: 28.50,
-    currency: 'USD',
+    currency: 'INR',
     stock: 35,
     minOrderQuantity: 1,
     images: [

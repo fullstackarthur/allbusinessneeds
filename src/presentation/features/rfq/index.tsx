@@ -1,13 +1,16 @@
+import { RfqCartPage } from './cart-page'
 import { RfqReviewPage } from './review-page'
 import { RfqDetailsPage } from './details-page'
 import { RfqConfirmationPage } from './confirmation-page'
 import { RfqHistoryPage } from './history-page'
 import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
 
-function RfqPage() {
+function RfqWorkflowPage() {
   const step = useRfqWorkflowStore((state) => state.step)
 
   switch (step) {
+    case 'cart':
+      return <RfqCartPage />
     case 'review':
       return <RfqReviewPage />
     case 'details':
@@ -15,8 +18,8 @@ function RfqPage() {
     case 'confirmation':
       return <RfqConfirmationPage />
     default:
-      return <RfqReviewPage />
+      return <RfqCartPage />
   }
 }
 
-export { RfqPage, RfqHistoryPage }
+export { RfqWorkflowPage, RfqHistoryPage }

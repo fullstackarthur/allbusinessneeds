@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { RfqItem, RfqContact, RfqDelivery, RfqStatus } from '@/core/types/rfq-schemas'
+import type { FileAttachment } from '@/shared/components/ui/attachment-uploader'
 import { generateId } from '@/core/utils/helpers'
 
 export type RfqStep = 'cart' | 'review' | 'details' | 'confirmation'
@@ -13,6 +14,7 @@ interface RfqWorkflowState {
   notes: string
   urgency: 'standard' | 'urgent' | 'critical'
   budgetRange: string
+  attachments: FileAttachment[]
   reference: string | null
   status: RfqStatus
   submittedAt: string | null
@@ -28,6 +30,7 @@ interface RfqWorkflowState {
   setNotes: (notes: string) => void
   setUrgency: (urgency: 'standard' | 'urgent' | 'critical') => void
   setBudgetRange: (range: string) => void
+  setAttachments: (attachments: FileAttachment[]) => void
   submit: () => void
   reset: () => void
   clearError: () => void
@@ -47,6 +50,7 @@ export const useRfqWorkflowStore = create<RfqWorkflowState>()(
       notes: '',
       urgency: 'standard',
       budgetRange: '',
+      attachments: [],
       reference: null,
       status: 'draft',
       submittedAt: null,
@@ -103,6 +107,8 @@ export const useRfqWorkflowStore = create<RfqWorkflowState>()(
 
       setBudgetRange: (budgetRange) => set({ budgetRange }),
 
+      setAttachments: (attachments) => set({ attachments }),
+
       submit: () => {
         const reference = `RFQ-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`
         set({
@@ -122,6 +128,7 @@ export const useRfqWorkflowStore = create<RfqWorkflowState>()(
           notes: '',
           urgency: 'standard',
           budgetRange: '',
+          attachments: [],
           reference: null,
           status: 'draft',
           submittedAt: null,

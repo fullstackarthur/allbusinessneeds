@@ -26,6 +26,7 @@ function MobileBottomNav() {
   const location = useLocation()
   const itemCount = useRfqDraftStore((state) => state.getItemCount())
   const setAiOpen = useAiStore((state) => state.setOpen)
+  const aiOpen = useAiStore((state) => state.isOpen)
 
   return (
     <nav
@@ -35,10 +36,13 @@ function MobileBottomNav() {
     >
       <div className="flex h-16 items-center justify-around px-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.href
+          const isAiItem = item.action === 'open-ai'
+          const isActive = isAiItem
+            ? aiOpen || location.pathname === item.href
+            : location.pathname === item.href
           const Icon = item.icon
 
-          if (item.action === 'open-ai') {
+          if (isAiItem) {
             return (
               <button
                 key={item.href}
@@ -86,15 +90,14 @@ function DesktopHeader() {
   const itemCount = useRfqDraftStore((state) => state.getItemCount())
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const setAiOpen = useAiStore((state) => state.setOpen)
+  const aiOpen = useAiStore((state) => state.isOpen)
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-sm">
       <div className="container-safe flex h-14 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link to={ROUTES.HOME} className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">ABN</span>
-            </div>
+            <img src="/favicon.svg" alt="ABN" className="h-7 w-7" />
             <span className="hidden text-base font-semibold text-text sm:inline-block">
               All Business Needs
             </span>
@@ -105,13 +108,14 @@ function DesktopHeader() {
               const isActive = location.pathname === item.href
 
               if (item.action === 'open-ai') {
+                const isAiActive = aiOpen || location.pathname === item.href
                 return (
                   <button
                     key={item.href}
                     onClick={() => setAiOpen(true)}
                     className={cn(
                       'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                      isActive
+                      isAiActive
                         ? 'bg-primary-muted text-primary'
                         : 'text-text-secondary hover:bg-surface-hover hover:text-text',
                     )}

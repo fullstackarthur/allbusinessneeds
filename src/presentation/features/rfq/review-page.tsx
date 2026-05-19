@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Input } from '@/shared/components/ui/input'
+import { ProcurementRecommendations } from '@/shared/components/ui/procurement-recommendations'
 import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ROUTES } from '@/core/constants'
 import {
@@ -13,32 +13,9 @@ import {
   Trash2,
   FileText,
   ArrowLeft,
-  Sparkles,
 } from 'lucide-react'
-import * as React from 'react'
 
 function RfqReviewPage() {
-  const draftItems = useRfqDraftStore((state) => state.draft?.items || [])
-  const addItem = useRfqWorkflowStore((state) => state.addItem)
-  const workflowItems = useRfqWorkflowStore((state) => state.items)
-
-  React.useEffect(() => {
-    if (draftItems.length === 0) return
-    const workflowIds = new Set(workflowItems.map((i) => i.product_id))
-    draftItems.forEach((item) => {
-      if (!workflowIds.has(item.productId)) {
-        addItem({
-          id: item.productId,
-          product_id: item.productId,
-          product_name: item.productName,
-          quantity: item.quantity,
-          target_price: item.targetPrice,
-          specifications: item.specifications,
-        })
-      }
-    })
-  }, [draftItems, addItem, workflowItems])
-
   const items = useRfqWorkflowStore((state) => state.items)
   const notes = useRfqWorkflowStore((state) => state.notes)
   const urgency = useRfqWorkflowStore((state) => state.urgency)
@@ -209,6 +186,28 @@ function RfqReviewPage() {
         </div>
       ))}
 
+      {/* Procurement Recommendations */}
+      <ProcurementRecommendations
+        rfqItems={items.map((item) => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          category: item.category,
+        }))}
+        onAddToRfq={(product) => {
+          useRfqWorkflowStore.getState().addItem({
+            id: product.id,
+            product_id: product.id,
+            product_name: product.name,
+            quantity: 1,
+            target_price: product.price,
+            sku: product.sku,
+            brand: product.brand,
+            thumbnail: product.thumbnail,
+            category: product.category,
+          })
+        }}
+      />
+
       {/* RFQ Details */}
       <div className="rounded-lg border border-border bg-surface p-4 space-y-4">
         <h3 className="text-sm font-semibold text-text">RFQ Details</h3>
@@ -288,22 +287,6 @@ function RfqReviewPage() {
               <span className="font-semibold text-text">{formatCurrency(estimatedTotal)}</span>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* AI Suggestions */}
-      <div className="rounded-lg border border-primary/20 bg-primary-muted/30 p-4">
-        <div className="flex items-start gap-3">
-          <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-          <div>
-            <h4 className="text-sm font-medium text-primary">AI Sourcing Suggestions</h4>
-            <p className="mt-1 text-xs text-text-secondary">
-              Get intelligent recommendations for complementary products and cost-saving alternatives
-            </p>
-            <button className="mt-2 text-xs font-medium text-primary hover:text-primary-hover transition-colors">
-              View suggestions
-            </button>
-          </div>
         </div>
       </div>
 

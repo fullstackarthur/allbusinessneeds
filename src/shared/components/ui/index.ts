@@ -66,3 +66,14 @@ export {
 export { Checkbox } from './checkbox'
 
 export { FilterBar, FilterDrawer } from './filter-system'
+
+export { StepProgress, StepProgressMobile } from './step-progress'
+
+export { AttachmentUploader } from './attachment-uploader'
+export type { FileAttachment } from './attachment-uploader'
+
+export { PdfPreviewModal } from './pdf-preview'
+export type { PdfPreviewData } from './pdf-preview'
+
+export { ProcurementRecommendations } from './procurement-recommendations'
+export type { RecommendedProduct } from './procurement-recommendations'
