@@ -4,6 +4,7 @@ import { ROUTES } from '@/core/constants'
 import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { useAiStore } from '@/presentation/stores/ai-store'
+import { useAuthStore } from '@/presentation/stores/auth-store'
 import { useMediaQuery } from '@/shared/hooks/use-media-query'
 import {
   Home,
@@ -94,6 +95,10 @@ function DesktopHeader() {
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
   const isMobile = useMediaQuery('(max-width: 1023px)')
+  const { profile, user } = useAuthStore()
+
+  const displayName = profile?.name || user?.email?.split('@')[0] || 'U'
+  const initials = displayName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 1)
 
   const handleSearchClick = () => {
     if (isMobile) {
@@ -186,7 +191,7 @@ function DesktopHeader() {
             className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-surface-active text-sm font-medium text-text-secondary hover:text-text transition-colors"
             aria-label="Account"
           >
-            U
+            {initials}
           </Link>
         </div>
       </div>

@@ -13,6 +13,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const setProfile = useAuthStore((s) => s.setProfile)
   const setInitialized = useAuthStore((s) => s.setInitialized)
   const setLoading = useAuthStore((s) => s.setLoading)
+  const clearAuth = useAuthStore((s) => s.clear)
 
   React.useEffect(() => {
     let cancelled = false
@@ -44,8 +45,15 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     init()
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (cancelled) return
+
+      console.log('[Auth] State change:', event, session?.user?.email)
+
+      if (event === 'SIGNED_OUT') {
+        clearAuth()
+        return
+      }
 
       setSession(session)
       setUser(session?.user ?? null)
@@ -67,7 +75,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       cancelled = true
       listener.subscription.unsubscribe()
     }
-  }, [setSession, setUser, setProfile, setInitialized, setLoading])
+  }, [setSession, setUser, setProfile, setInitialized, setLoading, clearAuth])
 
   return <>{children}</>
 }

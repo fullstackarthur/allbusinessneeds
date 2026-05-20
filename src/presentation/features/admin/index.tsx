@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
@@ -109,18 +109,23 @@ function AdminPage() {
     <div className="min-h-screen bg-[#faf9f7]">
       <header className="border-b border-[#e2e0dc] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-12">
+        <div className="flex items-center justify-between h-12">
+          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 bg-[#0033a0] rounded-sm" />
               <span className="text-sm font-medium text-[#0a1628] tracking-tight">Admin Panel</span>
             </div>
-            <button
-              onClick={() => { setAuthenticated(false); setEmail(''); setPassword('') }}
-              className="text-xs text-[#718096] hover:text-[#0a1628] transition-colors"
-            >
-              Sign Out
-            </button>
+            <Link to="/" className="text-sm text-[#718096] hover:text-[#0a1628] transition-colors">
+              Back to home
+            </Link>
           </div>
+          <button
+            onClick={() => { setAuthenticated(false); setEmail(''); setPassword('') }}
+            className="text-sm text-[#718096] hover:text-[#0a1628] transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
         </div>
       </header>
 
