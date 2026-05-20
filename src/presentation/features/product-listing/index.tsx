@@ -4,7 +4,7 @@ import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/comp
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useProducts, useCategoryBySlug } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { SlidersHorizontal, Grid3X3, List } from 'lucide-react'
@@ -15,8 +15,7 @@ function ProductListingPage() {
   const navigate = useNavigate()
   const { category } = useCategoryBySlug(slug || '')
   const { products, loading } = useProducts({ category: slug })
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const addItem = useCartStore((state) => state.addItem)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
   const [filterDrawerOpen, setFilterDrawerOpen] = React.useState(false)
 
@@ -25,21 +24,23 @@ function ProductListingPage() {
     ? `${products.length} products in ${category.name}`
     : `${products.length} products available for procurement`
 
-  const handleAddToRfq = (product: Product, quantity: number) => {
-    initialize()
+  const handleAddToCart = (product: Product, quantity: number) => {
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
     })
   }
 
   const handleCompactAdd = (product: Product) => {
-    initialize()
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity: product.minOrderQuantity,
+      unitPrice: product.price,
+      totalPrice: product.price * product.minOrderQuantity,
     })
   }
 
@@ -155,7 +156,7 @@ function ProductListingPage() {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToRfq={handleAddToRfq}
+              onAddToCart={handleAddToCart}
               onView={handleViewProduct}
             />
           ))}
@@ -166,7 +167,7 @@ function ProductListingPage() {
             <ProductCardList
               key={product.id}
               product={product}
-              onAddToRfq={handleCompactAdd}
+              onAddToCart={handleCompactAdd}
               onView={handleViewProduct}
             />
           ))}

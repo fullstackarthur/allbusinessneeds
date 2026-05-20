@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { ROUTES } from '@/core/constants'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { useAiStore } from '@/presentation/stores/ai-store'
 import { useAuthStore } from '@/presentation/stores/auth-store'
@@ -10,7 +10,6 @@ import {
   Home,
   Grid3X3,
   Sparkles,
-  FileText,
   User,
   Search,
   ShoppingCart,
@@ -20,13 +19,11 @@ const navItems = [
   { label: 'Home', icon: Home, href: ROUTES.EXPERIENCE_HOME, action: null },
   { label: 'Categories', icon: Grid3X3, href: ROUTES.CATEGORIES, action: null },
   { label: 'AI', icon: Sparkles, href: ROUTES.AI_COPILOT, action: 'open-ai' },
-  { label: 'RFQs', icon: FileText, href: ROUTES.RFQS, action: null },
   { label: 'Account', icon: User, href: ROUTES.ACCOUNT, action: null },
 ]
 
 function MobileBottomNav() {
   const location = useLocation()
-  const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
 
@@ -70,14 +67,7 @@ function MobileBottomNav() {
               )}
               aria-current={isActive ? 'page' : undefined}
             >
-              <div className="relative">
-                <Icon className="h-5 w-5" />
-                {item.href === ROUTES.RFQS && itemCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-                    {itemCount > 9 ? '9+' : itemCount}
-                  </span>
-                )}
-              </div>
+              <Icon className="h-5 w-5" />
               <span>{item.label}</span>
             </Link>
           )
@@ -90,7 +80,7 @@ function MobileBottomNav() {
 function DesktopHeader() {
   const location = useLocation()
   const navigate = useNavigate()
-  const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
+  const itemCount = useCartStore((state) => state.itemCount)
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
@@ -174,9 +164,9 @@ function DesktopHeader() {
           </button>
 
           <Link
-            to={ROUTES.RFQS}
+            to={`${ROUTES.EXPERIENCE}/cart`}
             className="relative rounded-md p-2 text-text-muted hover:bg-surface-hover hover:text-text transition-colors"
-            aria-label={`RFQ draft${itemCount ? ` (${itemCount} items)` : ''}`}
+            aria-label={`Cart${itemCount ? ` (${itemCount} items)` : ''}`}
           >
             <ShoppingCart className="h-5 w-5" />
             {itemCount > 0 && (

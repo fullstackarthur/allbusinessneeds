@@ -4,7 +4,7 @@ import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/comp
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useSearchProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal, X } from 'lucide-react'
@@ -24,12 +24,16 @@ function SearchPage() {
   const products = query.trim() ? searchResults : []
   const loading = query.trim() ? searchLoading : false
 
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const addItem = useCartStore((state) => state.addItem)
 
-  const handleAddToRfq = (product: Product, quantity: number) => {
-    initialize()
-    addItem({ productId: product.id, productName: product.name, quantity })
+  const handleAddToCart = (product: Product, quantity: number) => {
+    addItem({
+      id: Math.random().toString(36).slice(2, 11),
+      product,
+      quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
+    })
   }
 
   const handleViewProduct = (product: Product) => {
@@ -185,7 +189,7 @@ function SearchPage() {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToRfq={handleAddToRfq}
+              onAddToCart={handleAddToCart}
               onView={handleViewProduct}
             />
           ))}
@@ -196,7 +200,7 @@ function SearchPage() {
             <ProductCardList
               key={product.id}
               product={product}
-              onAddToRfq={() => handleAddToRfq(product, product.minOrderQuantity)}
+              onAddToCart={() => handleAddToCart(product, product.minOrderQuantity)}
               onView={handleViewProduct}
             />
           ))}

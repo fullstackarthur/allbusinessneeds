@@ -15,12 +15,12 @@ function ProductRecommendationsBlock({
   title,
   products,
   context,
-  onAddToRfq,
+  onAddToCart,
 }: {
   title?: string
   products: AiProduct[]
   context?: string
-  onAddToRfq?: (product: AiProduct) => void
+  onAddToCart?: (product: AiProduct) => void
 }) {
   return (
     <div className="space-y-3">
@@ -72,12 +72,12 @@ function ProductRecommendationsBlock({
               )}>
                 {product.stock === 0 ? 'Out of stock' : `${product.stock} in stock`}
               </span>
-              {onAddToRfq && product.stock > 0 && (
+              {onAddToCart && product.stock > 0 && (
                 <button
-                  onClick={() => onAddToRfq(product)}
+                  onClick={() => onAddToCart(product)}
                   className="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
                 >
-                  Add to RFQ
+                  Add to Cart
                 </button>
               )}
             </div>
@@ -130,10 +130,10 @@ function QuantityRecommendationsBlock({
 
 function ProcurementBundleBlock({
   bundle,
-  onAddAllToRfq,
+  onAddAllToCart,
 }: {
   bundle: AiProcurementBundle
-  onAddAllToRfq?: (products: AiProduct[]) => void
+  onAddAllToCart?: (products: AiProduct[]) => void
 }) {
   return (
     <div className="space-y-3">
@@ -168,12 +168,12 @@ function ProcurementBundleBlock({
         <p className="text-xs text-success">{bundle.savings_note}</p>
       )}
 
-      {onAddAllToRfq && (
+      {onAddAllToCart && (
         <button
-          onClick={() => onAddAllToRfq(bundle.products)}
+          onClick={() => onAddAllToCart(bundle.products)}
           className="w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
         >
-          Add Bundle to RFQ
+          Add Bundle to Cart
         </button>
       )}
     </div>
@@ -325,12 +325,12 @@ function SpecificationSummaryBlock({ spec }: { spec: AiSpecificationSummary }) {
 
 interface AiBlockRendererProps {
   block: AiResponseBlock
-  onAddToRfq?: (product: AiProduct) => void
-  onAddAllToRfq?: (products: AiProduct[]) => void
+  onAddToCart?: (product: AiProduct) => void
+  onAddAllToCart?: (products: AiProduct[]) => void
   onClarificationResponse?: (answer: string) => void
 }
 
-function AiBlockRenderer({ block, onAddToRfq, onAddAllToRfq, onClarificationResponse }: AiBlockRendererProps) {
+function AiBlockRenderer({ block, onAddToCart, onAddAllToCart, onClarificationResponse }: AiBlockRendererProps) {
   switch (block.type) {
     case 'text':
       return <TextBlock content={block.content} />
@@ -341,7 +341,7 @@ function AiBlockRenderer({ block, onAddToRfq, onAddAllToRfq, onClarificationResp
           title={block.title}
           products={block.products}
           context={block.context}
-          onAddToRfq={onAddToRfq}
+          onAddToCart={onAddToCart}
         />
       )
 
@@ -352,7 +352,7 @@ function AiBlockRenderer({ block, onAddToRfq, onAddAllToRfq, onClarificationResp
       return (
         <ProcurementBundleBlock
           bundle={block.bundle}
-          onAddAllToRfq={onAddAllToRfq}
+          onAddAllToCart={onAddAllToCart}
         />
       )
 

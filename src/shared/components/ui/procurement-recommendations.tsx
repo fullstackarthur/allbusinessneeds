@@ -17,8 +17,8 @@ interface RecommendedProduct {
 }
 
 interface ProcurementRecommendationsProps {
-  rfqItems: Array<{ product_id: string; product_name: string; category?: string }>
-  onAddToRfq?: (product: RecommendedProduct) => void
+  cartItems: Array<{ product_id: string; product_name: string; category?: string }>
+  onAddToCart?: (product: RecommendedProduct) => void
   onView?: (product: RecommendedProduct) => void
   className?: string
 }
@@ -107,13 +107,13 @@ const recommendationRules: Record<string, RecommendedProduct[]> = {
 }
 
 function ProcurementRecommendations({
-  rfqItems,
-  onAddToRfq,
+  cartItems,
+  onAddToCart,
   className,
 }: ProcurementRecommendationsProps) {
   const [expanded, setExpanded] = React.useState(false)
 
-  const categories = new Set(rfqItems.map((i) => i.category).filter(Boolean))
+  const categories = new Set(cartItems.map((i) => i.category).filter(Boolean))
   const recommendations = Array.from(categories).flatMap(
     (cat) => recommendationRules[cat as string] || [],
   )
@@ -137,7 +137,7 @@ function ProcurementRecommendations({
           <div>
             <h3 className="text-sm font-medium text-primary">Complementary Products</h3>
             <p className="text-xs text-text-muted">
-              {uniqueRecommendations.length} suggestions based on your RFQ
+              {uniqueRecommendations.length} suggestions based on your cart
             </p>
           </div>
         </div>
@@ -183,9 +183,9 @@ function ProcurementRecommendations({
                 <span className="text-sm font-semibold text-text">
                   {formatCurrency(product.price, product.currency)}
                 </span>
-                {onAddToRfq && product.stock > 0 && (
+                {onAddToCart && product.stock > 0 && (
                   <button
-                    onClick={() => onAddToRfq(product)}
+                    onClick={() => onAddToCart(product)}
                     className="flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
                   >
                     <Plus className="h-3 w-3" />

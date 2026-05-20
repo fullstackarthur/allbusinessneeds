@@ -6,17 +6,13 @@ import { Button } from '@/shared/components/ui/button'
 
 import { supabase } from '@/data/supabase/client'
 
-function getUseCases() {
-  return import('@/core/container').then((m) => m.useCases)
-}
-
 function CustomerAuthPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as any)?.from?.pathname || '/experience'
   const { user, profile } = useAuthStore()
 
-  const [mode, setMode] = React.useState<'signin' | 'signup'>(user && profile?.status === 'pending' ? 'signin' : 'signin')
+  const [mode, setMode] = React.useState<'signin' | 'signup'>('signin')
   const [name, setName] = React.useState('')
   const [businessName, setBusinessName] = React.useState('')
   const [email, setEmail] = React.useState('')
@@ -26,10 +22,10 @@ function CustomerAuthPage() {
   const [signupSuccess, setSignupSuccess] = React.useState(false)
 
   React.useEffect(() => {
-    if (user && profile?.status === 'approved') {
+    if (user) {
       navigate(from, { replace: true })
     }
-  }, [user, profile, navigate, from])
+  }, [user, navigate, from])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,15 +33,12 @@ function CustomerAuthPage() {
     setLoading(true)
 
     try {
-      console.log('[SignIn] Starting sign in for:', email)
-
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) {
-        console.error('[SignIn] Supabase error:', error.message)
         if (error.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please check your credentials and try again.')
         } else if (error.message.includes('Email not confirmed')) {
@@ -56,55 +49,10 @@ function CustomerAuthPage() {
         return
       }
 
-      if (!data.user) {
-        setError('Sign in failed. Please try again.')
-        return
-      }
-
-      console.log('[SignIn] User authenticated:', data.user.id)
-
-      const uc = await getUseCases()
-      let profile = await uc.auth.getProfile.execute(data.user.id)
-      console.log('[SignIn] Profile:', profile)
-
-      if (!profile) {
-        // If profile doesn't exist, create one automatically
-        console.log('[SignIn] Profile not found, creating new profile for user:', data.user.id)
-        const userMetadata = data.user.user_metadata || {}
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            name: userMetadata.name || data.user.email?.split('@')[0] || 'User',
-            business_name: userMetadata.business_name || 'N/A',
-            email: data.user.email || '',
-            status: 'pending',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-        
-        if (profileError) {
-          console.error('[SignIn] Profile creation error:', profileError.message)
-          setError(`Failed to create profile: ${profileError.message}`)
-          return
-        }
-
-        // Fetch the newly created profile
-        profile = await uc.auth.getProfile.execute(data.user.id)
-        console.log('[SignIn] Newly created profile:', profile)
-      }
-
-      if (profile?.status === 'approved') {
-        console.log('[SignIn] Approved, navigating to:', from)
-        navigate(from, { replace: true })
-      } else if (profile?.status === 'pending') {
-        setError('Your account is pending admin approval. Please wait for confirmation.')
-      } else if (profile?.status === 'rejected') {
-        setError('Your registration was not approved. Please contact support.')
-      }
+      // Auth provider's onAuthStateChange listener will handle profile fetch
+      // and update the auth store. The useEffect above will navigate when ready.
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      console.error('[SignIn] Caught error:', message)
       setError(`Sign in failed: ${message}`)
     } finally {
       setLoading(false)

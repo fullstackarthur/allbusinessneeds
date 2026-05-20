@@ -6,12 +6,12 @@ import { ChevronRight } from 'lucide-react'
 
 function ProductCardList({
   product,
-  onAddToRfq,
+  onAddToCart,
   onView,
   className,
 }: {
   product: Product
-  onAddToRfq?: (product: Product) => void
+  onAddToCart?: (product: Product) => void
   onView?: (product: Product) => void
   className?: string
 }) {
@@ -99,12 +99,12 @@ function ProductCardList({
             </Badge>
           </div>
 
-          {onAddToRfq && product.stock > 0 && (
+          {onAddToCart && product.stock > 0 && (
             <button
-              onClick={() => onAddToRfq(product)}
+              onClick={() => onAddToCart(product)}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
             >
-              Add to RFQ
+              Add to Cart
             </button>
           )}
         </div>

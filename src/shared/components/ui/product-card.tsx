@@ -7,7 +7,7 @@ import { Plus, AlertCircle } from 'lucide-react'
 
 export interface ProductCardProps extends React.HTMLAttributes<HTMLDivElement> {
   product: Product
-  onAddToRfq?: (product: Product, quantity: number) => void
+  onAddToCart?: (product: Product, quantity: number) => void
   onView?: (product: Product) => void
   compact?: boolean
 }
@@ -20,7 +20,7 @@ function getStockStatus(product: Product) {
 }
 
 const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
-  ({ className, product, onAddToRfq, onView, compact = false, ...props }, ref) => {
+  ({ className, product, onAddToCart, onView, compact = false, ...props }, ref) => {
     const [quantity, setQuantity] = React.useState(product.minOrderQuantity)
     const stock = getStockStatus(product)
     const isOutOfStock = product.stock === 0
@@ -81,7 +81,7 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
               </div>
             )}
 
-            {!isOutOfStock && onAddToRfq && (
+            {!isOutOfStock && onAddToCart && (
               <div className={cn('mt-2 flex items-center gap-1.5', compact && 'mt-1.5')}>
                 {!compact && (
                   <div className="flex items-center rounded-md border border-border bg-surface shrink-0">
@@ -114,7 +114,7 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    onAddToRfq(product, quantity)
+                    onAddToCart(product, quantity)
                   }}
                   className={cn(
                     'flex items-center justify-center gap-1 rounded-md bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active transition-colors',
@@ -122,7 +122,7 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
                   )}
                 >
                   <Plus className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
-                  <span className="truncate">RFQ</span>
+                  <span className="truncate">Add to Cart</span>
                 </button>
               </div>
             )}

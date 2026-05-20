@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { Button } from '@/shared/components/ui/button'
 import { useAuthStore } from '@/presentation/stores/auth-store'
@@ -12,14 +13,19 @@ function AccountPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuthStore()
 
+  // Watch for sign out and redirect
+  useEffect(() => {
+    if (!user) {
+      navigate('/', { replace: true })
+    }
+  }, [user, navigate])
+
   const handleSignOut = async () => {
     try {
       const uc = await getUseCases()
       await uc.auth.signOut.execute()
       console.log('[SignOut] Supabase sign out complete')
-      // Wait a tick for auth state to propagate
-      await new Promise((r) => setTimeout(r, 100))
-      navigate('/', { replace: true })
+      // Auth provider listener will handle state update and trigger redirect via useEffect above
     } catch (err) {
       console.error('[SignOut] Error:', err)
       navigate('/', { replace: true })

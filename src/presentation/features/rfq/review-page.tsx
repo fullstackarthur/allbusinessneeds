@@ -188,12 +188,12 @@ function RfqReviewPage() {
 
       {/* Procurement Recommendations */}
       <ProcurementRecommendations
-        rfqItems={items.map((item) => ({
+        cartItems={items.map((item) => ({
           product_id: item.product_id,
           product_name: item.product_name,
           category: item.category,
         }))}
-        onAddToRfq={(product) => {
+        onAddToCart={(product) => {
           useRfqWorkflowStore.getState().addItem({
             id: product.id,
             product_id: product.id,

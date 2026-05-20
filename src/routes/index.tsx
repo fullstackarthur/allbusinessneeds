@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/presentation/shells/app-shell'
-import { AuthProvider } from '@/presentation/providers/auth-provider'
 import { ProtectedRoute } from '@/presentation/components/shared/protected-route'
 
 import { LandingPage } from '@/presentation/features/landing-page'
@@ -9,32 +8,13 @@ import { AdminPage } from '@/presentation/features/admin'
 import { HomePage } from '@/presentation/features/home'
 import { CategoriesPage } from '@/presentation/features/categories'
 import { AiCopilotPage } from '@/presentation/features/ai-copilot'
-import { RfqWorkflowPage, RfqHistoryPage } from '@/presentation/features/rfq'
+import { RfqHistoryPage } from '@/presentation/features/rfq'
 import { AccountPage } from '@/presentation/features/account'
 import { ProductDetailPage } from '@/presentation/features/product'
 import { ProductListingPage } from '@/presentation/features/product-listing'
 import { SearchPage } from '@/presentation/features/search'
 import { BrandsPage } from '@/presentation/features/brands'
-import { useRfqWorkflowStore } from '@/presentation/stores/rfq-workflow-store'
-import { useEffect } from 'react'
-
-function CartRoute() {
-  const setStep = useRfqWorkflowStore((state) => state.setStep)
-  useEffect(() => { setStep('cart') }, [setStep])
-  return <RfqWorkflowPage />
-}
-
-function CheckoutRoute() {
-  const setStep = useRfqWorkflowStore((state) => state.setStep)
-  useEffect(() => { setStep('review') }, [setStep])
-  return <RfqWorkflowPage />
-}
-
-function RfqReviewRoute() {
-  const setStep = useRfqWorkflowStore((state) => state.setStep)
-  useEffect(() => { setStep('review') }, [setStep])
-  return <RfqWorkflowPage />
-}
+import { CartPage } from '@/presentation/features/cart'
 
 function ExperienceShell() {
   return (
@@ -47,19 +27,11 @@ function ExperienceShell() {
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <AuthProvider>
-        <LandingPage />
-      </AuthProvider>
-    ),
+    element: <LandingPage />,
   },
   {
     path: '/whoami/customer',
-    element: (
-      <AuthProvider>
-        <CustomerAuthPage />
-      </AuthProvider>
-    ),
+    element: <CustomerAuthPage />,
   },
   {
     path: '/whoami/admin',
@@ -67,11 +39,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/experience',
-    element: (
-      <AuthProvider>
-        <ExperienceShell />
-      </AuthProvider>
-    ),
+    element: <ExperienceShell />,
     errorElement: (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -85,10 +53,7 @@ export const router = createBrowserRouter([
       { path: 'categories', element: <CategoriesPage /> },
       { path: 'ai', element: <AiCopilotPage /> },
       { path: 'rfqs', element: <RfqHistoryPage /> },
-      { path: 'rfq', element: <RfqWorkflowPage /> },
-      { path: 'rfq/review', element: <RfqReviewRoute /> },
-      { path: 'cart', element: <CartRoute /> },
-      { path: 'checkout', element: <CheckoutRoute /> },
+      { path: 'cart', element: <CartPage /> },
       { path: 'account', element: <AccountPage /> },
       { path: 'products/:id', element: <ProductDetailPage /> },
       { path: 'products', element: <ProductListingPage /> },

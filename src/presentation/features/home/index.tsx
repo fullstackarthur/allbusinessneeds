@@ -5,7 +5,7 @@ import { ProductCardCompact } from '@/shared/components/ui/product-card-compact'
 import { ProductCardSkeleton } from '@/shared/components/ui/skeleton'
 import { Button } from '@/shared/components/ui/button'
 import { useUiStore } from '@/presentation/stores/ui-store'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
 import { useProducts, useCategories } from '@/shared/hooks/use-supabase-data'
 import { useMediaQuery } from '@/shared/hooks/use-media-query'
@@ -16,8 +16,7 @@ function HomePage() {
   const navigate = useNavigate()
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const isMobile = useMediaQuery('(max-width: 1023px)')
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const addItem = useCartStore((state) => state.addItem)
   const { items: recentlyViewed } = useRecentlyViewed()
   const { products, loading } = useProducts({ limit: 20 })
   const { categories, loading: categoriesLoading } = useCategories()
@@ -32,21 +31,23 @@ function HomePage() {
   const featuredProducts = shuffled.slice(0, 8)
   const compactProducts = shuffled.slice(0, 4)
 
-  const handleAddToRfq = (product: Product, quantity: number) => {
-    initialize()
+  const handleAddToCart = (product: Product, quantity: number) => {
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
     })
   }
 
   const handleCompactAdd = (product: Product) => {
-    initialize()
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity: product.minOrderQuantity,
+      unitPrice: product.price,
+      totalPrice: product.price * product.minOrderQuantity,
     })
   }
 
@@ -176,7 +177,7 @@ function HomePage() {
               <ProductCard
                 key={product.id}
                 product={product}
-                onAddToRfq={handleAddToRfq}
+                onAddToCart={handleAddToCart}
                 onView={handleViewProduct}
                 compact
               />
@@ -213,7 +214,7 @@ function HomePage() {
               <ProductCardCompact
                 key={product.id}
                 product={product}
-                onAddToRfq={handleCompactAdd}
+                onAddToCart={handleCompactAdd}
                 onView={handleViewProduct}
               />
             ))}
@@ -232,7 +233,7 @@ function HomePage() {
               <div key={product.id} className="w-[160px] sm:w-[180px] shrink-0 snap-start">
                 <ProductCard
                   product={product}
-                  onAddToRfq={handleAddToRfq}
+                onAddToCart={handleAddToCart}
                   onView={handleViewProduct}
                   compact
                 />

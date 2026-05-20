@@ -1,9 +1,14 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/presentation/stores/auth-store'
+import { useEffect } from 'react'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isInitialized, user, profile } = useAuthStore()
+  const { isInitialized, user } = useAuthStore()
   const location = useLocation()
+
+  useEffect(() => {
+    console.log('[ProtectedRoute] State:', { isInitialized, user: user?.email })
+  }, [isInitialized, user])
 
   if (!isInitialized) {
     return (
@@ -18,10 +23,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return <Navigate to="/whoami/customer" state={{ from: location }} replace />
-  }
-
-  if (profile?.status !== 'approved') {
-    return <Navigate to="/whoami/customer" state={{ from: location, pending: true }} replace />
   }
 
   return <>{children}</>

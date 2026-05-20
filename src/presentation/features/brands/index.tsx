@@ -1,19 +1,23 @@
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/core/constants'
 import { ProductCard, ProductCardSkeleton } from '@/shared/components/ui'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { ArrowRight } from 'lucide-react'
 
 function BrandsPage() {
   const { products, loading } = useProducts({ limit: 4 })
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const addItem = useCartStore((state) => state.addItem)
 
-  const handleAddToRfq = (product: Product, quantity: number) => {
-    initialize()
-    addItem({ productId: product.id, productName: product.name, quantity })
+  const handleAddToCart = (product: Product, quantity: number) => {
+    addItem({
+      id: Math.random().toString(36).slice(2, 11),
+      product,
+      quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
+    })
   }
 
   return (
@@ -54,7 +58,7 @@ function BrandsPage() {
               <ProductCard
                 key={product.id}
                 product={product}
-                onAddToRfq={handleAddToRfq}
+                onAddToCart={handleAddToCart}
                 onView={() => {}}
               />
             ))}

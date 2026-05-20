@@ -25,13 +25,13 @@ function LandingPage() {
 }
 
 function AuthNavButton() {
-  const { user, profile, isInitialized } = useAuthStore()
+  const { user, isInitialized } = useAuthStore()
 
   if (!isInitialized) {
     return <div className="w-24 h-8" />
   }
 
-  if (user && profile?.status === 'approved') {
+  if (user) {
     return (
       <Link
         to="/experience"
@@ -75,8 +75,8 @@ function Header() {
 }
 
 function AuthLink({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
-  const { user, profile } = useAuthStore()
-  const href = user && profile?.status === 'approved' ? to : '/whoami/customer'
+  const { user } = useAuthStore()
+  const href = user ? to : '/whoami/customer'
 
   return (
     <Link to={href} className={className}>

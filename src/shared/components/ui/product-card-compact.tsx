@@ -4,12 +4,12 @@ import type { Product } from '@/domain/entities'
 
 function ProductCardCompact({
   product,
-  onAddToRfq,
+  onAddToCart,
   onView,
   className,
 }: {
   product: Product
-  onAddToRfq?: (product: Product) => void
+  onAddToCart?: (product: Product) => void
   onView?: (product: Product) => void
   className?: string
 }) {
@@ -63,12 +63,12 @@ function ProductCardCompact({
         <span className="text-sm font-semibold text-text whitespace-nowrap">
           {formatCurrency(product.price, product.currency)}
         </span>
-        {onAddToRfq && product.stock > 0 && (
+        {onAddToCart && product.stock > 0 && (
           <button
-            onClick={() => onAddToRfq(product)}
+            onClick={() => onAddToCart(product)}
             className="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors whitespace-nowrap"
           >
-            Add to RFQ
+            Add to Cart
           </button>
         )}
       </div>

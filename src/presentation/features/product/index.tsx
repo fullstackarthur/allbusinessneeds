@@ -5,7 +5,7 @@ import { ProductCard } from '@/shared/components/ui/product-card'
 import { ProductCardSkeleton, Skeleton } from '@/shared/components/ui/skeleton'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductById, useRelatedProducts } from '@/shared/hooks/use-supabase-data'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ChevronRight, Plus, Minus, Sparkles, Download, Package, Star, AlertCircle } from 'lucide-react'
@@ -15,8 +15,7 @@ function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { product, loading } = useProductById(id || '')
   const { related, loading: relatedLoading } = useRelatedProducts(id || '', 4)
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const addItem = useCartStore((state) => state.addItem)
   const { addViewed } = useRecentlyViewed()
   const [quantity, setQuantity] = React.useState(1)
   const [selectedImage, setSelectedImage] = React.useState(0)
@@ -28,13 +27,14 @@ function ProductDetailPage() {
     }
   }, [product, addViewed])
 
-  const handleAddToRfq = () => {
+  const handleAddToCart = () => {
     if (!product) return
-    initialize()
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
     })
   }
 
@@ -220,9 +220,9 @@ function ProductDetailPage() {
                 Currently Unavailable
               </Button>
             ) : (
-              <Button onClick={handleAddToRfq} className="flex-1">
+              <Button onClick={handleAddToCart} className="flex-1">
                 <Plus className="mr-1.5 h-4 w-4" />
-                Add to RFQ
+                Add to Cart
               </Button>
             )}
             <Button variant="outline" size="icon">
@@ -276,9 +276,14 @@ function ProductDetailPage() {
               <ProductCard
                 key={relatedProduct.id}
                 product={relatedProduct}
-                onAddToRfq={(p, q) => {
-                  initialize()
-                  addItem({ productId: p.id, productName: p.name, quantity: q })
+                onAddToCart={(p, q) => {
+                  addItem({
+                    id: Math.random().toString(36).slice(2, 11),
+                    product: p,
+                    quantity: q,
+                    unitPrice: p.price,
+                    totalPrice: p.price * q,
+                  })
                 }}
                 onView={() => {}}
               />
