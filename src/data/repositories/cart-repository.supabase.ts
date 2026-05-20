@@ -10,28 +10,21 @@ interface CartItemRow {
   quantity: number
   unit_price: number | string
   total_price: number | string
-  product: ProductListingDto | null
 }
 
 function buildCartEntity(
   cartId: string,
-  items: {
-    id: string
-    product_id: string
-    quantity: number
-    unit_price: number
-    total_price: number
-    product: ProductListingDto | null
-  }[]
+  items: CartItemRow[],
+  products: Map<string, ProductListingDto>,
 ): Cart {
   const cartItems: CartItem[] = items
-    .filter((i) => i.product)
+    .filter((i) => products.has(i.product_id))
     .map((i) => ({
       id: i.id,
-      product: SupabaseMapper.toProductEntity(i.product!),
+      product: SupabaseMapper.toProductEntity(products.get(i.product_id)!),
       quantity: i.quantity,
-      unitPrice: i.unit_price,
-      totalPrice: i.total_price,
+      unitPrice: Number(i.unit_price),
+      totalPrice: Number(i.total_price),
     }))
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0)
@@ -58,7 +51,7 @@ export class SupabaseCartRepository implements CartRepository {
       .select('id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
     if (existingCart) return existingCart.id
 
@@ -74,50 +67,41 @@ export class SupabaseCartRepository implements CartRepository {
 
   async get(): Promise<Cart> {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return buildCartEntity('empty', [])
+    if (!user) return buildCartEntity('empty', [], new Map())
 
     const { data: cart } = await supabase
       .from('abn_carts')
       .select('id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
-    if (!cart) return buildCartEntity('empty', [])
+    if (!cart) return buildCartEntity('empty', [], new Map())
 
     const { data: items, error } = await supabase
       .from('abn_cart_items')
-      .select(`
-        id,
-        product_id,
-        quantity,
-        unit_price,
-        total_price,
-        product:product_id (
-          id, slug, title, is_master_product, product_url,
-          brand_name, category_name, category_slug,
-          mrp, our_price, offer_price, discount_pct,
-          in_stock, min_order_quantity, max_order_quantity,
-          primary_image_url, search_tags, procurement_tags,
-          unit_of_measure, created_at
-        )
-      `)
+      .select('id, product_id, quantity, unit_price, total_price')
       .eq('cart_id', cart.id)
       .order('created_at', { ascending: true })
 
     if (error) throw new Error(`Failed to fetch cart items: ${error.message}`)
 
-    return buildCartEntity(
-      cart.id,
-      (items || []).map((item: CartItemRow) => ({
-        id: item.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        unit_price: Number(item.unit_price),
-        total_price: Number(item.total_price),
-        product: item.product as ProductListingDto | null,
-      }))
-    )
+    if (!items || items.length === 0) {
+      return buildCartEntity(cart.id, [], new Map())
+    }
+
+    const productIds = items.map((i) => i.product_id)
+    const { data: products } = await supabase
+      .from('product_listing')
+      .select('*')
+      .in('id', productIds)
+
+    const productMap = new Map<string, ProductListingDto>()
+    for (const p of products || []) {
+      productMap.set(p.id, p as ProductListingDto)
+    }
+
+    return buildCartEntity(cart.id, items as CartItemRow[], productMap)
   }
 
   async addItem(item: CartItem): Promise<Cart> {
@@ -128,7 +112,7 @@ export class SupabaseCartRepository implements CartRepository {
       .select('id, quantity, unit_price, total_price')
       .eq('cart_id', cartId)
       .eq('product_id', item.product.id)
-      .single()
+      .maybeSingle()
 
     if (existing) {
       const newQuantity = existing.quantity + item.quantity
@@ -170,7 +154,7 @@ export class SupabaseCartRepository implements CartRepository {
       .select('id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
     if (!cart) throw new Error('No active cart found')
 
@@ -179,7 +163,7 @@ export class SupabaseCartRepository implements CartRepository {
       .select('unit_price')
       .eq('id', itemId)
       .eq('cart_id', cart.id)
-      .single()
+      .maybeSingle()
 
     if (!cartItem) throw new Error('Cart item not found')
 
@@ -205,7 +189,7 @@ export class SupabaseCartRepository implements CartRepository {
       .select('id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
     if (!cart) throw new Error('No active cart found')
 
@@ -229,7 +213,7 @@ export class SupabaseCartRepository implements CartRepository {
       .select('id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .maybeSingle()
 
     if (!cart) return
 
