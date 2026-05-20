@@ -16,7 +16,10 @@ function HomePage() {
   const navigate = useNavigate()
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const isMobile = useMediaQuery('(max-width: 1023px)')
+  const cart = useCartStore((state) => state.cart)
   const addItem = useCartStore((state) => state.addItem)
+  const updateItem = useCartStore((state) => state.updateItem)
+  const removeItem = useCartStore((state) => state.removeItem)
   const { items: recentlyViewed } = useRecentlyViewed()
   const { products, loading } = useProducts({ limit: 20 })
   const { categories, loading: categoriesLoading } = useCategories()
@@ -31,6 +34,15 @@ function HomePage() {
   const featuredProducts = shuffled.slice(0, 8)
   const compactProducts = shuffled.slice(0, 4)
 
+  const getCartQuantity = (productId: string): number => {
+    const item = cart?.items.find((i) => i.product.id === productId)
+    return item?.quantity || 0
+  }
+
+  const getCartItem = (productId: string) => {
+    return cart?.items.find((i) => i.product.id === productId)
+  }
+
   const handleAddToCart = (product: Product, quantity: number) => {
     addItem({
       id: Math.random().toString(36).slice(2, 11),
@@ -39,6 +51,16 @@ function HomePage() {
       unitPrice: product.price,
       totalPrice: product.price * quantity,
     })
+  }
+
+  const handleUpdateCart = (product: Product, quantity: number) => {
+    const item = getCartItem(product.id)
+    if (item) updateItem(item.id, quantity)
+  }
+
+  const handleRemoveFromCart = (product: Product) => {
+    const item = getCartItem(product.id)
+    if (item) removeItem(item.id)
   }
 
   const handleCompactAdd = (product: Product) => {
@@ -177,7 +199,10 @@ function HomePage() {
               <ProductCard
                 key={product.id}
                 product={product}
+                cartQuantity={getCartQuantity(product.id)}
                 onAddToCart={handleAddToCart}
+                onUpdateCart={handleUpdateCart}
+                onRemoveFromCart={handleRemoveFromCart}
                 onView={handleViewProduct}
                 compact
               />
@@ -233,7 +258,10 @@ function HomePage() {
               <div key={product.id} className="w-[160px] sm:w-[180px] shrink-0 snap-start">
                 <ProductCard
                   product={product}
-                onAddToCart={handleAddToCart}
+                  cartQuantity={getCartQuantity(product.id)}
+                  onAddToCart={handleAddToCart}
+                  onUpdateCart={handleUpdateCart}
+                  onRemoveFromCart={handleRemoveFromCart}
                   onView={handleViewProduct}
                   compact
                 />

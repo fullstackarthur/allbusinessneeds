@@ -10,17 +10,50 @@ import { useUiStore } from '@/presentation/stores/ui-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ChevronRight, Plus, Minus, Sparkles, Download, Package, Star, AlertCircle } from 'lucide-react'
+import type { Product } from '@/domain/entities'
 import * as React from 'react'
 
 function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { product, loading } = useProductById(id || '')
   const { related, loading: relatedLoading } = useRelatedProducts(id || '', 4)
+  const cart = useCartStore((state) => state.cart)
   const addItem = useCartStore((state) => state.addItem)
+  const updateItem = useCartStore((state) => state.updateItem)
+  const removeItem = useCartStore((state) => state.removeItem)
   const { addViewed } = useRecentlyViewed()
   const showPrices = useUiStore((s) => s.showPrices)
   const [quantity, setQuantity] = React.useState(1)
   const [selectedImage, setSelectedImage] = React.useState(0)
+
+  const getCartQuantity = (productId: string): number => {
+    const item = cart?.items.find((i) => i.product.id === productId)
+    return item?.quantity || 0
+  }
+
+  const getCartItem = (productId: string) => {
+    return cart?.items.find((i) => i.product.id === productId)
+  }
+
+  const handleRelatedAddToCart = (p: Product, q: number) => {
+    addItem({
+      id: Math.random().toString(36).slice(2, 11),
+      product: p,
+      quantity: q,
+      unitPrice: p.price,
+      totalPrice: p.price * q,
+    })
+  }
+
+  const handleRelatedUpdateCart = (p: Product, q: number) => {
+    const item = getCartItem(p.id)
+    if (item) updateItem(item.id, q)
+  }
+
+  const handleRelatedRemoveFromCart = (p: Product) => {
+    const item = getCartItem(p.id)
+    if (item) removeItem(item.id)
+  }
 
   React.useEffect(() => {
     if (product) {
@@ -282,15 +315,10 @@ function ProductDetailPage() {
               <ProductCard
                 key={relatedProduct.id}
                 product={relatedProduct}
-                onAddToCart={(p, q) => {
-                  addItem({
-                    id: Math.random().toString(36).slice(2, 11),
-                    product: p,
-                    quantity: q,
-                    unitPrice: p.price,
-                    totalPrice: p.price * q,
-                  })
-                }}
+                cartQuantity={getCartQuantity(relatedProduct.id)}
+                onAddToCart={handleRelatedAddToCart}
+                onUpdateCart={handleRelatedUpdateCart}
+                onRemoveFromCart={handleRelatedRemoveFromCart}
                 onView={() => {}}
               />
             ))}

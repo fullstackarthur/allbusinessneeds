@@ -4,13 +4,16 @@ import { formatCurrency } from '@/core/utils/helpers'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { Badge } from '@/shared/components/ui/badge'
 import type { Product } from '@/domain/entities'
-import { Plus, AlertCircle } from 'lucide-react'
+import { Plus, Minus, AlertCircle } from 'lucide-react'
 
 export interface ProductCardProps extends React.HTMLAttributes<HTMLDivElement> {
   product: Product
   onAddToCart?: (product: Product, quantity: number) => void
+  onUpdateCart?: (product: Product, quantity: number) => void
+  onRemoveFromCart?: (product: Product) => void
   onView?: (product: Product) => void
   compact?: boolean
+  cartQuantity?: number
 }
 
 function getStockStatus(product: Product) {
@@ -21,11 +24,40 @@ function getStockStatus(product: Product) {
 }
 
 const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
-  ({ className, product, onAddToCart, onView, compact = false, ...props }, ref) => {
-    const [quantity, setQuantity] = React.useState(product.minOrderQuantity)
+  ({ className, product, onAddToCart, onUpdateCart, onRemoveFromCart, onView, compact = false, cartQuantity = 0, ...props }, ref) => {
+    const [pendingQty, setPendingQty] = React.useState(product.minOrderQuantity)
     const showPrices = useUiStore((s) => s.showPrices)
     const stock = getStockStatus(product)
     const isOutOfStock = product.stock === 0
+    const isInCart = cartQuantity > 0
+    const displayQty = isInCart ? cartQuantity : pendingQty
+
+    const handleAdd = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      onAddToCart?.(product, pendingQty)
+    }
+
+    const handleIncrement = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (isInCart) {
+        onUpdateCart?.(product, cartQuantity + 1)
+      } else {
+        setPendingQty((q) => q + 1)
+      }
+    }
+
+    const handleDecrement = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (isInCart) {
+        if (cartQuantity <= product.minOrderQuantity) {
+          onRemoveFromCart?.(product)
+        } else {
+          onUpdateCart?.(product, cartQuantity - 1)
+        }
+      } else {
+        setPendingQty((q) => Math.max(product.minOrderQuantity, q - 1))
+      }
+    }
 
     return (
       <div
@@ -86,48 +118,63 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
             )}
 
             {!isOutOfStock && onAddToCart && (
-              <div className={cn('mt-2 flex items-center gap-1.5', compact && 'mt-1.5')}>
-                {!compact && (
-                  <div className="flex items-center rounded-md border border-border bg-surface shrink-0">
+              <div className={cn('mt-2', compact && 'mt-1.5')}>
+                {isInCart ? (
+                  <div className="flex items-center rounded-lg bg-primary text-primary-foreground overflow-hidden">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setQuantity((q) => Math.max(product.minOrderQuantity, q - 1))
-                      }}
-                      className="flex h-7 w-7 items-center justify-center text-text-muted hover:text-text transition-colors rounded-l-md text-xs"
+                      onClick={handleDecrement}
+                      className="flex h-9 w-9 items-center justify-center hover:bg-primary-hover transition-colors"
                       aria-label="Decrease quantity"
                     >
-                      -
+                      <Minus className="h-4 w-4" />
                     </button>
-                    <span className="w-8 text-center text-xs font-medium tabular-nums">
-                      {quantity}
+                    <span className="flex-1 text-center text-sm font-semibold tabular-nums">
+                      {displayQty}
                     </span>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setQuantity((q) => q + 1)
-                      }}
-                      className="flex h-7 w-7 items-center justify-center text-text-muted hover:text-text transition-colors rounded-r-md text-xs"
+                      onClick={handleIncrement}
+                      className="flex h-9 w-9 items-center justify-center hover:bg-primary-hover transition-colors"
                       aria-label="Increase quantity"
                     >
-                      +
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    {!compact && (
+                      <div className="flex items-center rounded-md border border-border bg-surface shrink-0">
+                        <button
+                          onClick={handleDecrement}
+                          className="flex h-7 w-7 items-center justify-center text-text-muted hover:text-text transition-colors rounded-l-md text-xs"
+                          aria-label="Decrease quantity"
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center text-xs font-medium tabular-nums">
+                          {displayQty}
+                        </span>
+                        <button
+                          onClick={handleIncrement}
+                          className="flex h-7 w-7 items-center justify-center text-text-muted hover:text-text transition-colors rounded-r-md text-xs"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleAdd}
+                      className={cn(
+                        'flex items-center justify-center gap-1 rounded-md bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active transition-colors',
+                        compact ? 'flex-1 px-2 py-1.5 text-xs' : 'flex-1 px-3 py-2 text-sm',
+                      )}
+                    >
+                      <Plus className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
+                      <span className="truncate">Add to Cart</span>
                     </button>
                   </div>
                 )}
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onAddToCart(product, quantity)
-                  }}
-                  className={cn(
-                    'flex items-center justify-center gap-1 rounded-md bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active transition-colors',
-                    compact ? 'flex-1 px-2 py-1.5 text-xs' : 'flex-1 px-3 py-2 text-sm',
-                  )}
-                >
-                  <Plus className={cn('shrink-0', compact ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
-                  <span className="truncate">Add to Cart</span>
-                </button>
               </div>
             )}
 

@@ -24,7 +24,19 @@ function SearchPage() {
   const products = query.trim() ? searchResults : []
   const loading = query.trim() ? searchLoading : false
 
+  const cart = useCartStore((state) => state.cart)
   const addItem = useCartStore((state) => state.addItem)
+  const updateItem = useCartStore((state) => state.updateItem)
+  const removeItem = useCartStore((state) => state.removeItem)
+
+  const getCartQuantity = (productId: string): number => {
+    const item = cart?.items.find((i) => i.product.id === productId)
+    return item?.quantity || 0
+  }
+
+  const getCartItem = (productId: string) => {
+    return cart?.items.find((i) => i.product.id === productId)
+  }
 
   const handleAddToCart = (product: Product, quantity: number) => {
     addItem({
@@ -34,6 +46,16 @@ function SearchPage() {
       unitPrice: product.price,
       totalPrice: product.price * quantity,
     })
+  }
+
+  const handleUpdateCart = (product: Product, quantity: number) => {
+    const item = getCartItem(product.id)
+    if (item) updateItem(item.id, quantity)
+  }
+
+  const handleRemoveFromCart = (product: Product) => {
+    const item = getCartItem(product.id)
+    if (item) removeItem(item.id)
   }
 
   const handleViewProduct = (product: Product) => {
@@ -189,7 +211,10 @@ function SearchPage() {
             <ProductCard
               key={product.id}
               product={product}
+              cartQuantity={getCartQuantity(product.id)}
               onAddToCart={handleAddToCart}
+              onUpdateCart={handleUpdateCart}
+              onRemoveFromCart={handleRemoveFromCart}
               onView={handleViewProduct}
             />
           ))}
