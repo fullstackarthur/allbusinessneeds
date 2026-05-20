@@ -43,7 +43,7 @@ function RfqReviewPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to={ROUTES.HOME} className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           <span className="text-text">Review RFQ</span>
         </div>
@@ -56,7 +56,7 @@ function RfqReviewPage() {
           <p className="mt-1 text-sm text-text-secondary">
             Add products to your RFQ to request quotations
           </p>
-          <Link to={ROUTES.HOME} className="mt-4">
+          <Link to={ROUTES.EXPERIENCE_HOME} className="mt-4">
             <Button>Browse Catalog</Button>
           </Link>
         </div>
@@ -68,7 +68,7 @@ function RfqReviewPage() {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-text-muted">
-        <Link to={ROUTES.HOME} className="hover:text-text transition-colors">Home</Link>
+        <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
         <span>/</span>
         <span className="text-text">Review RFQ</span>
       </div>
@@ -188,12 +188,12 @@ function RfqReviewPage() {
 
       {/* Procurement Recommendations */}
       <ProcurementRecommendations
-        rfqItems={items.map((item) => ({
+        cartItems={items.map((item) => ({
           product_id: item.product_id,
           product_name: item.product_name,
           category: item.category,
         }))}
-        onAddToRfq={(product) => {
+        onAddToCart={(product) => {
           useRfqWorkflowStore.getState().addItem({
             id: product.id,
             product_id: product.id,
@@ -292,7 +292,7 @@ function RfqReviewPage() {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Link to={ROUTES.HOME} className="flex-1">
+        <Link to={ROUTES.EXPERIENCE_HOME} className="flex-1">
           <Button variant="outline" className="w-full">
             Continue Shopping
           </Button>

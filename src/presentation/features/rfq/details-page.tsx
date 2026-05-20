@@ -135,7 +135,7 @@ function RfqDetailsPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to={ROUTES.HOME} className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           <span className="text-text">RFQ Details</span>
         </div>
@@ -148,7 +148,7 @@ function RfqDetailsPage() {
           <p className="mt-1 text-sm text-text-secondary">
             Add products to your RFQ before submitting
           </p>
-          <Link to={ROUTES.HOME} className="mt-4">
+          <Link to={ROUTES.EXPERIENCE_HOME} className="mt-4">
             <Button>Browse Catalog</Button>
           </Link>
         </div>
@@ -160,9 +160,9 @@ function RfqDetailsPage() {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-text-muted">
-        <Link to={ROUTES.HOME} className="hover:text-text transition-colors">Home</Link>
+        <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
         <span>/</span>
-        <Link to="/rfq/review" className="hover:text-text transition-colors">Review RFQ</Link>
+        <Link to={ROUTES.RFQ_REVIEW} className="hover:text-text transition-colors">Review RFQ</Link>
         <span>/</span>
         <span className="text-text">Details</span>
       </div>

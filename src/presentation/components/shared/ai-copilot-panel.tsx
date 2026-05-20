@@ -2,7 +2,7 @@ import { cn } from '@/shared/lib/utils'
 import { useAiStore } from '@/presentation/stores/ai-store'
 import { AiBlockRenderer } from '@/presentation/components/shared/ai-block-renderer'
 import { AiTypingIndicator } from '@/presentation/components/shared/ai-loading'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import type { AiProduct } from '@/core/types/ai-schemas'
 import { Send, Sparkles, X, AlertCircle, RotateCcw } from 'lucide-react'
 import * as React from 'react'
@@ -41,7 +41,7 @@ function AiCopilotPanel() {
   const initialize = useAiStore((state) => state.initialize)
   const updateContext = useAiStore((state) => state.updateContext)
 
-  const rfqItems = useRfqDraftStore((state) => state.draft?.items ?? EMPTY_ITEMS)
+  const cartItems = useCartStore((state) => state.cart?.items ?? EMPTY_ITEMS)
 
   const [currentPath, setCurrentPath] = React.useState('')
 
@@ -70,24 +70,24 @@ function AiCopilotPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isProcessing])
 
-  const rfqItemsRef = React.useRef(rfqItems)
+  const cartItemsRef = React.useRef(cartItems)
 
   React.useEffect(() => {
-    rfqItemsRef.current = rfqItems
-  }, [rfqItems])
+    cartItemsRef.current = cartItems
+  }, [cartItems])
 
   React.useEffect(() => {
     if (!isOpen) return
 
-    const items = rfqItemsRef.current
+    const items = cartItemsRef.current
     updateContext({
       currentRfqItems: items.map((item) => ({
-        product_id: item.productId,
-        product_name: item.productName,
+        product_id: item.product.id,
+        product_name: item.product.name,
         quantity: item.quantity,
       })),
     })
-  }, [isOpen, rfqItems.length, updateContext])
+  }, [isOpen, cartItems.length, updateContext])
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -124,22 +124,58 @@ function AiCopilotPanel() {
     }
   }
 
-  const handleAddToRfq = (product: AiProduct) => {
-    useRfqDraftStore.getState().initialize()
-    useRfqDraftStore.getState().addItem({
-      productId: product.id,
-      productName: product.name,
+  const handleAddToCart = (product: AiProduct) => {
+    useCartStore.getState().addItem({
+      id: Math.random().toString(36).slice(2, 11),
+      product: {
+        id: product.id,
+        name: product.name,
+        description: '',
+        sku: product.sku,
+        category: '',
+        price: product.price,
+        currency: product.currency,
+        stock: product.stock,
+        minOrderQuantity: 1,
+        images: product.thumbnail ? [product.thumbnail] : [],
+        thumbnail: product.thumbnail || '',
+        attributes: {},
+        rating: product.rating || 0,
+        reviewCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
       quantity: 1,
+      unitPrice: product.price,
+      totalPrice: product.price,
     })
   }
 
-  const handleAddAllToRfq = (products: AiProduct[]) => {
-    useRfqDraftStore.getState().initialize()
+  const handleAddAllToCart = (products: AiProduct[]) => {
     products.forEach((product) => {
-      useRfqDraftStore.getState().addItem({
-        productId: product.id,
-        productName: product.name,
+      useCartStore.getState().addItem({
+        id: Math.random().toString(36).slice(2, 11),
+        product: {
+          id: product.id,
+          name: product.name,
+          description: '',
+          sku: product.sku,
+          category: '',
+          price: product.price,
+          currency: product.currency,
+          stock: product.stock,
+          minOrderQuantity: 1,
+          images: product.thumbnail ? [product.thumbnail] : [],
+          thumbnail: product.thumbnail || '',
+          attributes: {},
+          rating: product.rating || 0,
+          reviewCount: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
         quantity: 1,
+        unitPrice: product.price,
+        totalPrice: product.price,
       })
     })
   }
@@ -226,8 +262,8 @@ function AiCopilotPanel() {
                       <AiBlockRenderer
                         key={index}
                         block={block}
-                        onAddToRfq={handleAddToRfq}
-                        onAddAllToRfq={handleAddAllToRfq}
+                        onAddToCart={handleAddToCart}
+                        onAddAllToCart={handleAddAllToCart}
                         onClarificationResponse={handleClarificationResponse}
                       />
                     ))}

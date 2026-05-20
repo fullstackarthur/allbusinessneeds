@@ -1,5 +1,6 @@
 import type { AiResponseBlock, AiProduct, AiQuantityRecommendation, AiProcurementBundle, AiInventoryAlert, AiClarificationRequest, AiRfqSummary, AiSpecificationSummary } from '@/core/types/ai-schemas'
 import { formatCurrency } from '@/core/utils/helpers'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { AlertCircle, Package, TrendingUp, FileText, HelpCircle, ClipboardList, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
@@ -15,13 +16,15 @@ function ProductRecommendationsBlock({
   title,
   products,
   context,
-  onAddToRfq,
+  onAddToCart,
 }: {
   title?: string
   products: AiProduct[]
   context?: string
-  onAddToRfq?: (product: AiProduct) => void
+  onAddToCart?: (product: AiProduct) => void
 }) {
+  const showPrices = useUiStore((s) => s.showPrices)
+
   return (
     <div className="space-y-3">
       {title && (
@@ -63,21 +66,23 @@ function ProductRecommendationsBlock({
               )}
             </div>
             <div className="flex flex-col items-end gap-1.5">
-              <span className="text-sm font-semibold text-text">
-                {formatCurrency(product.price, product.currency)}
-              </span>
+              {showPrices && (
+                <span className="text-sm font-semibold text-text">
+                  {formatCurrency(product.price, product.currency)}
+                </span>
+              )}
               <span className={cn(
                 'text-xs',
                 product.stock === 0 ? 'text-destructive' : product.stock <= 5 ? 'text-warning' : 'text-success',
               )}>
                 {product.stock === 0 ? 'Out of stock' : `${product.stock} in stock`}
               </span>
-              {onAddToRfq && product.stock > 0 && (
+              {onAddToCart && product.stock > 0 && (
                 <button
-                  onClick={() => onAddToRfq(product)}
+                  onClick={() => onAddToCart(product)}
                   className="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
                 >
-                  Add to RFQ
+                  Add to Cart
                 </button>
               )}
             </div>
@@ -130,11 +135,13 @@ function QuantityRecommendationsBlock({
 
 function ProcurementBundleBlock({
   bundle,
-  onAddAllToRfq,
+  onAddAllToCart,
 }: {
   bundle: AiProcurementBundle
-  onAddAllToRfq?: (products: AiProduct[]) => void
+  onAddAllToCart?: (products: AiProduct[]) => void
 }) {
+  const showPrices = useUiStore((s) => s.showPrices)
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -151,29 +158,33 @@ function ProcurementBundleBlock({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-text truncate">{product.name}</p>
-              <p className="text-xs text-text-muted">{formatCurrency(product.price, product.currency)}</p>
+              {showPrices && (
+                <p className="text-xs text-text-muted">{formatCurrency(product.price, product.currency)}</p>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between rounded-md bg-surface-active px-3 py-2">
-        <span className="text-sm font-medium text-text">Estimated total</span>
-        <span className="text-base font-semibold text-text">
-          {formatCurrency(bundle.estimated_total)}
-        </span>
-      </div>
+      {showPrices && (
+        <div className="flex items-center justify-between rounded-md bg-surface-active px-3 py-2">
+          <span className="text-sm font-medium text-text">Estimated total</span>
+          <span className="text-base font-semibold text-text">
+            {formatCurrency(bundle.estimated_total)}
+          </span>
+        </div>
+      )}
 
       {bundle.savings_note && (
         <p className="text-xs text-success">{bundle.savings_note}</p>
       )}
 
-      {onAddAllToRfq && (
+      {onAddAllToCart && (
         <button
-          onClick={() => onAddAllToRfq(bundle.products)}
+          onClick={() => onAddAllToCart(bundle.products)}
           className="w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
         >
-          Add Bundle to RFQ
+          Add Bundle to Cart
         </button>
       )}
     </div>
@@ -243,6 +254,8 @@ function ClarificationBlock({
 }
 
 function RfqSummaryBlock({ summary }: { summary: AiRfqSummary }) {
+  const showPrices = useUiStore((s) => s.showPrices)
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -255,10 +268,12 @@ function RfqSummaryBlock({ summary }: { summary: AiRfqSummary }) {
           <p className="text-lg font-semibold text-text">{summary.item_count}</p>
           <p className="text-xs text-text-muted">Items</p>
         </div>
-        <div className="rounded-md bg-surface-active p-3 text-center">
-          <p className="text-lg font-semibold text-text">{formatCurrency(summary.estimated_total)}</p>
-          <p className="text-xs text-text-muted">Estimated</p>
-        </div>
+        {showPrices && (
+          <div className="rounded-md bg-surface-active p-3 text-center">
+            <p className="text-lg font-semibold text-text">{formatCurrency(summary.estimated_total)}</p>
+            <p className="text-xs text-text-muted">Estimated</p>
+          </div>
+        )}
       </div>
 
       {summary.categories.length > 0 && (
@@ -325,12 +340,12 @@ function SpecificationSummaryBlock({ spec }: { spec: AiSpecificationSummary }) {
 
 interface AiBlockRendererProps {
   block: AiResponseBlock
-  onAddToRfq?: (product: AiProduct) => void
-  onAddAllToRfq?: (products: AiProduct[]) => void
+  onAddToCart?: (product: AiProduct) => void
+  onAddAllToCart?: (products: AiProduct[]) => void
   onClarificationResponse?: (answer: string) => void
 }
 
-function AiBlockRenderer({ block, onAddToRfq, onAddAllToRfq, onClarificationResponse }: AiBlockRendererProps) {
+function AiBlockRenderer({ block, onAddToCart, onAddAllToCart, onClarificationResponse }: AiBlockRendererProps) {
   switch (block.type) {
     case 'text':
       return <TextBlock content={block.content} />
@@ -341,7 +356,7 @@ function AiBlockRenderer({ block, onAddToRfq, onAddAllToRfq, onClarificationResp
           title={block.title}
           products={block.products}
           context={block.context}
-          onAddToRfq={onAddToRfq}
+          onAddToCart={onAddToCart}
         />
       )
 
@@ -352,7 +367,7 @@ function AiBlockRenderer({ block, onAddToRfq, onAddAllToRfq, onClarificationResp
       return (
         <ProcurementBundleBlock
           bundle={block.bundle}
-          onAddAllToRfq={onAddAllToRfq}
+          onAddAllToCart={onAddAllToCart}
         />
       )
 

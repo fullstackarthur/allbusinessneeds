@@ -49,4 +49,12 @@ export class ProductRepositoryImpl implements ProductRepository {
     )
     return response.data.map(ProductMapper.toEntity)
   }
+
+  async getRandom(limit = 8): Promise<Product[]> {
+    const response = await httpClient.get<ProductDto[]>(
+      `${PRODUCTS_ENDPOINT}/random`,
+      { headers: { 'X-Limit': String(limit) } },
+    )
+    return response.data.map(ProductMapper.toEntity)
+  }
 }

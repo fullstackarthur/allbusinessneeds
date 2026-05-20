@@ -1,9 +1,10 @@
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useSearchProducts } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { Search as SearchIcon, Grid3X3, List, SlidersHorizontal, X } from 'lucide-react'
@@ -23,16 +24,42 @@ function SearchPage() {
   const products = query.trim() ? searchResults : []
   const loading = query.trim() ? searchLoading : false
 
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const cart = useCartStore((state) => state.cart)
+  const addItem = useCartStore((state) => state.addItem)
+  const updateItem = useCartStore((state) => state.updateItem)
+  const removeItem = useCartStore((state) => state.removeItem)
 
-  const handleAddToRfq = (product: Product, quantity: number) => {
-    initialize()
-    addItem({ productId: product.id, productName: product.name, quantity })
+  const getCartQuantity = (productId: string): number => {
+    const item = cart?.items.find((i) => i.product.id === productId)
+    return item?.quantity || 0
+  }
+
+  const getCartItem = (productId: string) => {
+    return cart?.items.find((i) => i.product.id === productId)
+  }
+
+  const handleAddToCart = (product: Product, quantity: number) => {
+    addItem({
+      id: Math.random().toString(36).slice(2, 11),
+      product,
+      quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
+    })
+  }
+
+  const handleUpdateCart = (product: Product, quantity: number) => {
+    const item = getCartItem(product.id)
+    if (item) updateItem(item.id, quantity)
+  }
+
+  const handleRemoveFromCart = (product: Product) => {
+    const item = getCartItem(product.id)
+    if (item) removeItem(item.id)
   }
 
   const handleViewProduct = (product: Product) => {
-    navigate(`/products/${product.id}`)
+    navigate(`/experience/products/${product.id}`)
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -85,7 +112,7 @@ function SearchPage() {
       {/* Breadcrumb & Title */}
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to="/" className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           <span className="text-text">Search</span>
         </div>
@@ -173,7 +200,7 @@ function SearchPage() {
           description={`No products match "${query}". Try searching by SKU, brand, or category.`}
           icon={<SearchIcon className="h-8 w-8" />}
           action={
-            <Link to="/">
+            <Link to={ROUTES.EXPERIENCE_HOME}>
               <Button variant="outline">Browse Catalog</Button>
             </Link>
           }
@@ -184,7 +211,10 @@ function SearchPage() {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToRfq={handleAddToRfq}
+              cartQuantity={getCartQuantity(product.id)}
+              onAddToCart={handleAddToCart}
+              onUpdateCart={handleUpdateCart}
+              onRemoveFromCart={handleRemoveFromCart}
               onView={handleViewProduct}
             />
           ))}
@@ -195,7 +225,7 @@ function SearchPage() {
             <ProductCardList
               key={product.id}
               product={product}
-              onAddToRfq={() => handleAddToRfq(product, product.minOrderQuantity)}
+              onAddToCart={() => handleAddToCart(product, product.minOrderQuantity)}
               onView={handleViewProduct}
             />
           ))}

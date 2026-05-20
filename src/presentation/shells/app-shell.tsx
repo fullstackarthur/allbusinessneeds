@@ -3,7 +3,9 @@ import { MobileBottomNav, DesktopHeader } from '@/presentation/components/naviga
 import { RfqReviewBar } from '@/presentation/components/shared/rfq-review-bar'
 import { SearchOverlay } from '@/presentation/components/shared/search-overlay'
 import { AiCopilotPanel } from '@/presentation/components/shared/ai-copilot-panel'
-import { useEffect } from 'react'
+import { useAuthStore } from '@/presentation/stores/auth-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
+import { useEffect, useRef } from 'react'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -15,10 +17,50 @@ function ScrollToTop() {
   return null
 }
 
+function VisitTracker() {
+  const { pathname } = useLocation()
+  const { user } = useAuthStore()
+  const trackedRef = useRef<string>('')
+
+  useEffect(() => {
+    if (pathname === trackedRef.current) return
+    trackedRef.current = pathname
+
+    const productId = pathname.startsWith('/experience/products/')
+      ? pathname.split('/').pop()
+      : undefined
+
+    import('@/core/container').then((m) => {
+      m.useCases.auth.logVisit.execute(
+        user?.id || null,
+        pathname,
+        productId
+      ).catch(() => {})
+    })
+  }, [pathname, user])
+
+  return null
+}
+
+function CartInitializer() {
+  const { user, isInitialized } = useAuthStore()
+  const fetchCart = useCartStore((s) => s.fetchCart)
+
+  useEffect(() => {
+    if (isInitialized && user) {
+      fetchCart()
+    }
+  }, [isInitialized, user, fetchCart])
+
+  return null
+}
+
 function AppShell() {
   return (
     <div className="min-h-screen bg-background">
       <ScrollToTop />
+      <VisitTracker />
+      <CartInitializer />
       <DesktopHeader />
       <main className="pb-16 lg:pb-0">
         <div className="container-safe py-4 lg:py-6">

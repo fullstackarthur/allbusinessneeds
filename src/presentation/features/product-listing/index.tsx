@@ -1,9 +1,10 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { ProductCard, ProductCardList, ProductCardSkeleton } from '@/shared/components/ui'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { FilterBar, FilterDrawer } from '@/shared/components/ui/filter-system'
 import { useProductFilters } from '@/shared/hooks/use-product-filters'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useProducts, useCategoryBySlug } from '@/shared/hooks/use-supabase-data'
 import type { Product } from '@/domain/entities'
 import { SlidersHorizontal, Grid3X3, List } from 'lucide-react'
@@ -14,8 +15,10 @@ function ProductListingPage() {
   const navigate = useNavigate()
   const { category } = useCategoryBySlug(slug || '')
   const { products, loading } = useProducts({ category: slug })
-  const addItem = useRfqDraftStore((state) => state.addItem)
-  const initialize = useRfqDraftStore((state) => state.initialize)
+  const cart = useCartStore((state) => state.cart)
+  const addItem = useCartStore((state) => state.addItem)
+  const updateItem = useCartStore((state) => state.updateItem)
+  const removeItem = useCartStore((state) => state.removeItem)
   const { filters, sortBy, viewMode, activeFilterCount, toggleFilter, setSortBy, setViewMode, clearAll } = useProductFilters()
   const [filterDrawerOpen, setFilterDrawerOpen] = React.useState(false)
 
@@ -24,26 +27,51 @@ function ProductListingPage() {
     ? `${products.length} products in ${category.name}`
     : `${products.length} products available for procurement`
 
-  const handleAddToRfq = (product: Product, quantity: number) => {
-    initialize()
+  const getCartQuantity = (productId: string): number => {
+    const item = cart?.items.find((i) => i.product.id === productId)
+    return item?.quantity || 0
+  }
+
+  const getCartItem = (productId: string) => {
+    return cart?.items.find((i) => i.product.id === productId)
+  }
+
+  const handleAddToCart = (product: Product, quantity: number) => {
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity,
+      unitPrice: product.price,
+      totalPrice: product.price * quantity,
     })
   }
 
+  const handleUpdateCart = (product: Product, quantity: number) => {
+    const item = getCartItem(product.id)
+    if (item) {
+      updateItem(item.id, quantity)
+    }
+  }
+
+  const handleRemoveFromCart = (product: Product) => {
+    const item = getCartItem(product.id)
+    if (item) {
+      removeItem(item.id)
+    }
+  }
+
   const handleCompactAdd = (product: Product) => {
-    initialize()
     addItem({
-      productId: product.id,
-      productName: product.name,
+      id: Math.random().toString(36).slice(2, 11),
+      product,
       quantity: product.minOrderQuantity,
+      unitPrice: product.price,
+      totalPrice: product.price * product.minOrderQuantity,
     })
   }
 
   const handleViewProduct = (product: Product) => {
-    navigate(`/products/${product.id}`)
+    navigate(`/experience/products/${product.id}`)
   }
 
   const handleApplyFilters = () => {
@@ -55,11 +83,11 @@ function ProductListingPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <Link to="/" className="hover:text-text transition-colors">Home</Link>
+          <Link to={ROUTES.EXPERIENCE_HOME} className="hover:text-text transition-colors">Home</Link>
           <span>/</span>
           {category ? (
             <>
-              <Link to="/categories" className="hover:text-text transition-colors">Categories</Link>
+              <Link to={ROUTES.CATEGORIES} className="hover:text-text transition-colors">Categories</Link>
               <span>/</span>
               <span className="text-text">{category.name}</span>
             </>
@@ -154,7 +182,10 @@ function ProductListingPage() {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToRfq={handleAddToRfq}
+              cartQuantity={getCartQuantity(product.id)}
+              onAddToCart={handleAddToCart}
+              onUpdateCart={handleUpdateCart}
+              onRemoveFromCart={handleRemoveFromCart}
               onView={handleViewProduct}
             />
           ))}
@@ -165,7 +196,7 @@ function ProductListingPage() {
             <ProductCardList
               key={product.id}
               product={product}
-              onAddToRfq={handleCompactAdd}
+              onAddToCart={handleCompactAdd}
               onView={handleViewProduct}
             />
           ))}

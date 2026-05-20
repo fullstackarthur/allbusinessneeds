@@ -19,4 +19,5 @@ export interface ProductRepository {
   getById(id: string): Promise<Product>
   getRelated(id: string, limit?: number): Promise<Product[]>
   search(query: string, limit?: number): Promise<Product[]>
+  getRandom(limit?: number): Promise<Product[]>
 }

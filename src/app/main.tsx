@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { router } from '@/routes'
+import { AuthProvider } from '@/presentation/providers/auth-provider'
 import { QueryProvider } from '@/presentation/providers/query-provider'
 import { ErrorBoundary } from '@/shared/components/error-boundary'
 import { useUiStore } from '@/presentation/stores/ui-store'
@@ -34,10 +35,12 @@ function KeyboardShortcuts() {
 function App() {
   return (
     <ErrorBoundary>
-      <QueryProvider>
-        <KeyboardShortcuts />
-        <RouterProvider router={router} />
-      </QueryProvider>
+      <AuthProvider>
+        <QueryProvider>
+          <KeyboardShortcuts />
+          <RouterProvider router={router} />
+        </QueryProvider>
+      </AuthProvider>
     </ErrorBoundary>
   )
 }

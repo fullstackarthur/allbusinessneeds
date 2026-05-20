@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/core/constants'
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/components/ui/input'
 import { formatCurrency } from '@/core/utils/helpers'
@@ -97,6 +98,7 @@ function SearchOverlay() {
   const [selectedIndex, setSelectedIndex] = React.useState(-1)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
+  const showPrices = useUiStore((s) => s.showPrices)
 
   const searchOpen = useUiStore((state) => state.searchOpen)
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
@@ -163,13 +165,13 @@ function SearchOverlay() {
 
   const handleSelect = (suggestion: SearchSuggestion) => {
     if (suggestion.type === 'product') {
-      navigate(`/products/${suggestion.id}`)
+      navigate(`/experience/products/${suggestion.id}`)
     } else if (suggestion.type === 'category') {
-      navigate(`/categories/${suggestion.id}`)
+      navigate(`${ROUTES.CATEGORIES}/${suggestion.id}`)
     } else if (suggestion.type === 'brand') {
-      navigate(`/search?q=${encodeURIComponent(suggestion.label)}`)
+      navigate(`${ROUTES.SEARCH}?q=${encodeURIComponent(suggestion.label)}`)
     } else if (suggestion.type === 'sku') {
-      navigate(`/search?q=${encodeURIComponent(suggestion.label)}`)
+      navigate(`${ROUTES.SEARCH}?q=${encodeURIComponent(suggestion.label)}`)
     }
     setSearchOpen(false)
   }
@@ -292,7 +294,7 @@ function SearchOverlay() {
                         </p>
                       )}
                     </div>
-                    {suggestion.price && (
+                    {showPrices && suggestion.price && (
                       <div className="text-right shrink-0">
                         <p className="text-sm font-medium text-text">
                           {formatCurrency(suggestion.price, suggestion.currency)}
@@ -312,7 +314,7 @@ function SearchOverlay() {
 
                 <button
                   onClick={() => {
-                    navigate(`/search?q=${encodeURIComponent(query)}`)
+                    navigate(`${ROUTES.SEARCH}?q=${encodeURIComponent(query)}`)
                     setSearchOpen(false)
                   }}
                   className="flex w-full items-center justify-center gap-2 border-t border-border px-4 py-3 text-sm font-medium text-primary hover:bg-surface-hover transition-colors"

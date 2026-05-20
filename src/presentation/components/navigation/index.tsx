@@ -1,31 +1,30 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { ROUTES } from '@/core/constants'
-import { useRfqDraftStore } from '@/presentation/stores/rfq-draft-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useUiStore } from '@/presentation/stores/ui-store'
 import { useAiStore } from '@/presentation/stores/ai-store'
+import { useAuthStore } from '@/presentation/stores/auth-store'
 import { useMediaQuery } from '@/shared/hooks/use-media-query'
+import { PriceToggle } from '@/presentation/components/shared/price-toggle'
 import {
   Home,
   Grid3X3,
   Sparkles,
-  FileText,
   User,
   Search,
   ShoppingCart,
 } from 'lucide-react'
 
 const navItems = [
-  { label: 'Home', icon: Home, href: ROUTES.HOME, action: null },
+  { label: 'Home', icon: Home, href: ROUTES.EXPERIENCE_HOME, action: null },
   { label: 'Categories', icon: Grid3X3, href: ROUTES.CATEGORIES, action: null },
   { label: 'AI', icon: Sparkles, href: ROUTES.AI_COPILOT, action: 'open-ai' },
-  { label: 'RFQs', icon: FileText, href: ROUTES.RFQS, action: null },
   { label: 'Account', icon: User, href: ROUTES.ACCOUNT, action: null },
 ]
 
 function MobileBottomNav() {
   const location = useLocation()
-  const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
 
@@ -69,14 +68,7 @@ function MobileBottomNav() {
               )}
               aria-current={isActive ? 'page' : undefined}
             >
-              <div className="relative">
-                <Icon className="h-5 w-5" />
-                {item.href === ROUTES.RFQS && itemCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-                    {itemCount > 9 ? '9+' : itemCount}
-                  </span>
-                )}
-              </div>
+              <Icon className="h-5 w-5" />
               <span>{item.label}</span>
             </Link>
           )
@@ -89,15 +81,19 @@ function MobileBottomNav() {
 function DesktopHeader() {
   const location = useLocation()
   const navigate = useNavigate()
-  const itemCount = useRfqDraftStore((state) => state.draft?.items.length ?? 0)
+  const itemCount = useCartStore((state) => state.itemCount)
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
   const setAiOpen = useAiStore((state) => state.setOpen)
   const aiOpen = useAiStore((state) => state.isOpen)
   const isMobile = useMediaQuery('(max-width: 1023px)')
+  const { profile, user } = useAuthStore()
+
+  const displayName = profile?.name || user?.email?.split('@')[0] || 'U'
+  const initials = displayName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 1)
 
   const handleSearchClick = () => {
     if (isMobile) {
-      navigate('/search')
+      navigate(ROUTES.SEARCH)
     } else {
       setSearchOpen(true)
     }
@@ -107,7 +103,7 @@ function DesktopHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-sm">
       <div className="container-safe flex h-14 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link to={ROUTES.HOME} className="flex items-center gap-2">
+          <Link to={ROUTES.EXPERIENCE_HOME} className="flex items-center gap-2">
             <img src="/favicon.svg" alt="ABN" className="h-7 w-7" />
             <span className="hidden text-base font-semibold text-text sm:inline-block">
               All Business Needs
@@ -156,6 +152,8 @@ function DesktopHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <PriceToggle />
+
           <button
             onClick={handleSearchClick}
             className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-muted hover:border-border-strong hover:text-text transition-colors"
@@ -169,9 +167,9 @@ function DesktopHeader() {
           </button>
 
           <Link
-            to={ROUTES.RFQS}
+            to={`${ROUTES.EXPERIENCE}/cart`}
             className="relative rounded-md p-2 text-text-muted hover:bg-surface-hover hover:text-text transition-colors"
-            aria-label={`RFQ draft${itemCount ? ` (${itemCount} items)` : ''}`}
+            aria-label={`Cart${itemCount ? ` (${itemCount} items)` : ''}`}
           >
             <ShoppingCart className="h-5 w-5" />
             {itemCount > 0 && (
@@ -186,7 +184,7 @@ function DesktopHeader() {
             className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-surface-active text-sm font-medium text-text-secondary hover:text-text transition-colors"
             aria-label="Account"
           >
-            U
+            {initials}
           </Link>
         </div>
       </div>

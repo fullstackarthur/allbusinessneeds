@@ -277,7 +277,7 @@ function RfqConfirmationPage() {
           </Button>
         </div>
 
-        <Link to={ROUTES.HOME}>
+        <Link to={ROUTES.EXPERIENCE_HOME}>
           <Button className="w-full">
             Continue Sourcing
           </Button>
