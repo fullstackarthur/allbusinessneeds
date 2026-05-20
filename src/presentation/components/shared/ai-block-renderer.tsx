@@ -1,5 +1,6 @@
 import type { AiResponseBlock, AiProduct, AiQuantityRecommendation, AiProcurementBundle, AiInventoryAlert, AiClarificationRequest, AiRfqSummary, AiSpecificationSummary } from '@/core/types/ai-schemas'
 import { formatCurrency } from '@/core/utils/helpers'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { AlertCircle, Package, TrendingUp, FileText, HelpCircle, ClipboardList, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
@@ -22,6 +23,8 @@ function ProductRecommendationsBlock({
   context?: string
   onAddToCart?: (product: AiProduct) => void
 }) {
+  const showPrices = useUiStore((s) => s.showPrices)
+
   return (
     <div className="space-y-3">
       {title && (
@@ -63,9 +66,11 @@ function ProductRecommendationsBlock({
               )}
             </div>
             <div className="flex flex-col items-end gap-1.5">
-              <span className="text-sm font-semibold text-text">
-                {formatCurrency(product.price, product.currency)}
-              </span>
+              {showPrices && (
+                <span className="text-sm font-semibold text-text">
+                  {formatCurrency(product.price, product.currency)}
+                </span>
+              )}
               <span className={cn(
                 'text-xs',
                 product.stock === 0 ? 'text-destructive' : product.stock <= 5 ? 'text-warning' : 'text-success',
@@ -135,6 +140,8 @@ function ProcurementBundleBlock({
   bundle: AiProcurementBundle
   onAddAllToCart?: (products: AiProduct[]) => void
 }) {
+  const showPrices = useUiStore((s) => s.showPrices)
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -151,18 +158,22 @@ function ProcurementBundleBlock({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-text truncate">{product.name}</p>
-              <p className="text-xs text-text-muted">{formatCurrency(product.price, product.currency)}</p>
+              {showPrices && (
+                <p className="text-xs text-text-muted">{formatCurrency(product.price, product.currency)}</p>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between rounded-md bg-surface-active px-3 py-2">
-        <span className="text-sm font-medium text-text">Estimated total</span>
-        <span className="text-base font-semibold text-text">
-          {formatCurrency(bundle.estimated_total)}
-        </span>
-      </div>
+      {showPrices && (
+        <div className="flex items-center justify-between rounded-md bg-surface-active px-3 py-2">
+          <span className="text-sm font-medium text-text">Estimated total</span>
+          <span className="text-base font-semibold text-text">
+            {formatCurrency(bundle.estimated_total)}
+          </span>
+        </div>
+      )}
 
       {bundle.savings_note && (
         <p className="text-xs text-success">{bundle.savings_note}</p>
@@ -243,6 +254,8 @@ function ClarificationBlock({
 }
 
 function RfqSummaryBlock({ summary }: { summary: AiRfqSummary }) {
+  const showPrices = useUiStore((s) => s.showPrices)
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -255,10 +268,12 @@ function RfqSummaryBlock({ summary }: { summary: AiRfqSummary }) {
           <p className="text-lg font-semibold text-text">{summary.item_count}</p>
           <p className="text-xs text-text-muted">Items</p>
         </div>
-        <div className="rounded-md bg-surface-active p-3 text-center">
-          <p className="text-lg font-semibold text-text">{formatCurrency(summary.estimated_total)}</p>
-          <p className="text-xs text-text-muted">Estimated</p>
-        </div>
+        {showPrices && (
+          <div className="rounded-md bg-surface-active p-3 text-center">
+            <p className="text-lg font-semibold text-text">{formatCurrency(summary.estimated_total)}</p>
+            <p className="text-xs text-text-muted">Estimated</p>
+          </div>
+        )}
       </div>
 
       {summary.categories.length > 0 && (

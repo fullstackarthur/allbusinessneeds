@@ -1,6 +1,6 @@
 import { SupabaseProductRepository } from '@/data/repositories/supabase-product-repository'
 import { SupabaseCategoryRepository } from '@/data/repositories/supabase-category-repository'
-import { LocalStorageCartRepository } from '@/data/repositories/cart-repository.local'
+import { SupabaseCartRepository } from '@/data/repositories/cart-repository.supabase'
 import { RfqRepositoryImpl } from '@/data/repositories/rfq-repository.impl'
 import { AiRepositoryImpl } from '@/data/repositories/ai-repository.impl'
 import { SupabaseAuthRepository } from '@/data/repositories/supabase-auth-repository'
@@ -55,7 +55,7 @@ import {
 
 const productRepository = new SupabaseProductRepository()
 const categoryRepository = new SupabaseCategoryRepository()
-const cartRepository = new LocalStorageCartRepository()
+const cartRepository = new SupabaseCartRepository()
 const rfqRepository = new RfqRepositoryImpl()
 const aiRepository = new AiRepositoryImpl()
 const authRepository = new SupabaseAuthRepository()

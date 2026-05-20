@@ -1,5 +1,6 @@
 import { cn } from '@/shared/lib/utils'
 import { formatCurrency } from '@/core/utils/helpers'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import type { Product } from '@/domain/entities'
 
 function ProductCardCompact({
@@ -13,6 +14,7 @@ function ProductCardCompact({
   onView?: (product: Product) => void
   className?: string
 }) {
+  const showPrices = useUiStore((s) => s.showPrices)
   const stockLabel = product.stock === 0
     ? 'Out of stock'
     : product.stock <= 5
@@ -60,9 +62,11 @@ function ProductCardCompact({
       </div>
 
       <div className="flex flex-col items-end gap-1.5 shrink-0">
-        <span className="text-sm font-semibold text-text whitespace-nowrap">
-          {formatCurrency(product.price, product.currency)}
-        </span>
+        {showPrices && (
+          <span className="text-sm font-semibold text-text whitespace-nowrap">
+            {formatCurrency(product.price, product.currency)}
+          </span>
+        )}
         {onAddToCart && product.stock > 0 && (
           <button
             onClick={() => onAddToCart(product)}

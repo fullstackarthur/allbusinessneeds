@@ -6,6 +6,7 @@ import { ProductCardSkeleton, Skeleton } from '@/shared/components/ui/skeleton'
 import { EmptyState } from '@/shared/components/ui/empty-state'
 import { useProductById, useRelatedProducts } from '@/shared/hooks/use-supabase-data'
 import { useCartStore } from '@/presentation/stores/cart-store'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { useRecentlyViewed } from '@/shared/hooks/use-recently-viewed'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ChevronRight, Plus, Minus, Sparkles, Download, Package, Star, AlertCircle } from 'lucide-react'
@@ -17,6 +18,7 @@ function ProductDetailPage() {
   const { related, loading: relatedLoading } = useRelatedProducts(id || '', 4)
   const addItem = useCartStore((state) => state.addItem)
   const { addViewed } = useRecentlyViewed()
+  const showPrices = useUiStore((s) => s.showPrices)
   const [quantity, setQuantity] = React.useState(1)
   const [selectedImage, setSelectedImage] = React.useState(0)
 
@@ -165,12 +167,14 @@ function ProductDetailPage() {
           </div>
 
           <div className="rounded-lg border border-border bg-surface p-4">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-semibold text-text">
-                {formatCurrency(product.price, product.currency)}
-              </span>
-              <span className="text-sm text-text-muted">/ unit</span>
-            </div>
+            {showPrices && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-semibold text-text">
+                  {formatCurrency(product.price, product.currency)}
+                </span>
+                <span className="text-sm text-text-muted">/ unit</span>
+              </div>
+            )}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
               <span>SKU: <span className="font-mono text-text">{product.sku}</span></span>
               <span>Min. order: {product.minOrderQuantity}</span>
@@ -205,9 +209,11 @@ function ProductDetailPage() {
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
-                <span className="text-xs text-text-muted">
-                  Total: {formatCurrency(product.price * quantity, product.currency)}
-                </span>
+                {showPrices && (
+                  <span className="text-xs text-text-muted">
+                    Total: {formatCurrency(product.price * quantity, product.currency)}
+                  </span>
+                )}
               </div>
             </div>
           )}

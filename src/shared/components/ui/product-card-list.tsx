@@ -1,5 +1,6 @@
 import { cn } from '@/shared/lib/utils'
 import { formatCurrency } from '@/core/utils/helpers'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { Badge } from '@/shared/components/ui/badge'
 import type { Product } from '@/domain/entities'
 import { ChevronRight } from 'lucide-react'
@@ -15,6 +16,7 @@ function ProductCardList({
   onView?: (product: Product) => void
   className?: string
 }) {
+  const showPrices = useUiStore((s) => s.showPrices)
   const stockLabel = product.stock === 0
     ? 'Out of stock'
     : product.stock <= 5
@@ -90,10 +92,12 @@ function ProductCardList({
 
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-lg font-semibold text-text">
-              {formatCurrency(product.price, product.currency)}
-              <span className="ml-1 text-sm font-normal text-text-muted">/ unit</span>
-            </span>
+            {showPrices && (
+              <span className="text-lg font-semibold text-text">
+                {formatCurrency(product.price, product.currency)}
+                <span className="ml-1 text-sm font-normal text-text-muted">/ unit</span>
+              </span>
+            )}
             <Badge variant={stockVariant} className="text-xs">
               {stockLabel}
             </Badge>

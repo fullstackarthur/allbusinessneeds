@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/presentation/stores/auth-store'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { useRandomProducts } from '@/shared/hooks/use-supabase-data'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ArrowRight, Search, FileText, Sparkles, Package, ClipboardCheck, Truck, Layers, BarChart3, Settings, Zap, Globe } from 'lucide-react'
@@ -58,9 +59,9 @@ function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#faf9f7]/90 backdrop-blur-md border-b border-[#e2e0dc]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-6 h-6 bg-[#0033a0] rounded-sm" />
-            <span className="text-base font-semibold text-[#0a1628] tracking-tight">allbusinessneeds</span>
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/favicon.svg" alt="ABN" className="h-7 w-7" />
+            <span className="text-base font-semibold text-[#0a1628] tracking-tight">All Business Needs</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <a href="#workflow" className="text-sm text-[#4a5568] hover:text-[#0a1628] transition-colors">Workflow</a>
@@ -277,6 +278,7 @@ function AiSourcingSection() {
 
 function ProductCard({ product }: { product: Product }) {
   const { user, profile } = useAuthStore()
+  const showPrices = useUiStore((s) => s.showPrices)
   const isAuthed = user && profile?.status === 'approved'
   const stockLabel = product.stock === 0 ? 'Out of stock' : product.stock <= 5 ? 'Low stock' : product.stock <= 20 ? 'Limited' : 'In stock'
   const stockColor = product.stock === 0 ? 'text-[#c41e3a]' : product.stock <= 5 ? 'text-[#b8860b]' : 'text-[#2d7a4f]'
@@ -295,7 +297,11 @@ function ProductCard({ product }: { product: Product }) {
         <div className="text-sm font-semibold text-[#0a1628] line-clamp-2 leading-snug min-h-[2.5rem]">{product.name}</div>
         <div className="text-xs text-[#718096] mt-1 truncate">SKU: {product.sku}</div>
         <div className="flex items-center justify-between mt-auto pt-3">
-          <span className="text-sm font-semibold text-[#0a1628]">{formatCurrency(product.price, product.currency)}</span>
+          {showPrices ? (
+            <span className="text-sm font-semibold text-[#0a1628]">{formatCurrency(product.price, product.currency)}</span>
+          ) : (
+            <span />
+          )}
           <span className={`text-xs font-medium ${stockColor}`}>{stockLabel}</span>
         </div>
       </div>
@@ -524,9 +530,9 @@ function Footer() {
     <footer className="border-t border-[#e2e0dc] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-5 h-5 bg-[#0033a0] rounded-sm" />
-            <span className="text-sm font-semibold text-[#0a1628] tracking-tight">allbusinessneeds</span>
+          <div className="flex items-center gap-2">
+            <img src="/favicon.svg" alt="ABN" className="h-5 w-5" />
+            <span className="text-sm font-semibold text-[#0a1628] tracking-tight">All Business Needs</span>
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-5 sm:gap-6">
             <Link to={experienceLink} className="text-xs text-[#718096] hover:text-[#0a1628] transition-colors">Catalog</Link>

@@ -98,6 +98,7 @@ function SearchOverlay() {
   const [selectedIndex, setSelectedIndex] = React.useState(-1)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
+  const showPrices = useUiStore((s) => s.showPrices)
 
   const searchOpen = useUiStore((state) => state.searchOpen)
   const setSearchOpen = useUiStore((state) => state.setSearchOpen)
@@ -293,7 +294,7 @@ function SearchOverlay() {
                         </p>
                       )}
                     </div>
-                    {suggestion.price && (
+                    {showPrices && suggestion.price && (
                       <div className="text-right shrink-0">
                         <p className="text-sm font-medium text-text">
                           {formatCurrency(suggestion.price, suggestion.currency)}

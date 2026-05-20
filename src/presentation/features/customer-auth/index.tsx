@@ -125,9 +125,9 @@ function CustomerAuthPage() {
         <div className="border-b border-[#e2e0dc] bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-12">
-              <Link to="/" className="flex items-center gap-2.5">
-                <div className="w-5 h-5 bg-[#0033a0] rounded-sm" />
-                <span className="text-sm font-semibold text-[#0a1628] tracking-tight">allbusinessneeds</span>
+              <Link to="/" className="flex items-center gap-2">
+                <img src="/favicon.svg" alt="ABN" className="h-7 w-7" />
+                <span className="text-sm font-semibold text-[#0a1628] tracking-tight">All Business Needs</span>
               </Link>
               <Link to="/" className="text-sm text-[#718096] hover:text-[#0a1628] transition-colors">
                 Back to home
@@ -163,9 +163,9 @@ function CustomerAuthPage() {
       <div className="border-b border-[#e2e0dc] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-5 h-5 bg-[#0033a0] rounded-sm" />
-              <span className="text-sm font-semibold text-[#0a1628] tracking-tight">allbusinessneeds</span>
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/favicon.svg" alt="ABN" className="h-7 w-7" />
+              <span className="text-sm font-semibold text-[#0a1628] tracking-tight">All Business Needs</span>
             </Link>
             <Link to="/" className="text-sm text-[#718096] hover:text-[#0a1628] transition-colors">
               Back to home

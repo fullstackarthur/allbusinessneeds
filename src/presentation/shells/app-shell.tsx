@@ -4,6 +4,7 @@ import { RfqReviewBar } from '@/presentation/components/shared/rfq-review-bar'
 import { SearchOverlay } from '@/presentation/components/shared/search-overlay'
 import { AiCopilotPanel } from '@/presentation/components/shared/ai-copilot-panel'
 import { useAuthStore } from '@/presentation/stores/auth-store'
+import { useCartStore } from '@/presentation/stores/cart-store'
 import { useEffect, useRef } from 'react'
 
 function ScrollToTop() {
@@ -41,11 +42,25 @@ function VisitTracker() {
   return null
 }
 
+function CartInitializer() {
+  const { user, isInitialized } = useAuthStore()
+  const fetchCart = useCartStore((s) => s.fetchCart)
+
+  useEffect(() => {
+    if (isInitialized && user) {
+      fetchCart()
+    }
+  }, [isInitialized, user, fetchCart])
+
+  return null
+}
+
 function AppShell() {
   return (
     <div className="min-h-screen bg-background">
       <ScrollToTop />
       <VisitTracker />
+      <CartInitializer />
       <DesktopHeader />
       <main className="pb-16 lg:pb-0">
         <div className="container-safe py-4 lg:py-6">

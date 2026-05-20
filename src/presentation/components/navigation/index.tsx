@@ -6,6 +6,7 @@ import { useUiStore } from '@/presentation/stores/ui-store'
 import { useAiStore } from '@/presentation/stores/ai-store'
 import { useAuthStore } from '@/presentation/stores/auth-store'
 import { useMediaQuery } from '@/shared/hooks/use-media-query'
+import { PriceToggle } from '@/presentation/components/shared/price-toggle'
 import {
   Home,
   Grid3X3,
@@ -151,6 +152,8 @@ function DesktopHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <PriceToggle />
+
           <button
             onClick={handleSearchClick}
             className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-muted hover:border-border-strong hover:text-text transition-colors"

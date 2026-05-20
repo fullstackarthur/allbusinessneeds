@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { useCartStore } from '@/presentation/stores/cart-store'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { formatCurrency } from '@/core/utils/helpers'
 import { ROUTES } from '@/core/constants'
 import {
@@ -16,6 +17,7 @@ function CartPage() {
   const removeItem = useCartStore((state) => state.removeItem)
   const clear = useCartStore((state) => state.clear)
   const isLoading = useCartStore((state) => state.isLoading)
+  const showPrices = useUiStore((s) => s.showPrices)
 
   const items = cart?.items || []
 
@@ -76,9 +78,11 @@ function CartPage() {
               <p className="mt-0.5 text-xs text-text-muted">
                 SKU: {item.product.sku}
               </p>
-              <p className="mt-1 text-sm font-semibold text-text sm:hidden">
-                {formatCurrency(item.totalPrice, item.product.currency)}
-              </p>
+              {showPrices && (
+                <p className="mt-1 text-sm font-semibold text-text sm:hidden">
+                  {formatCurrency(item.totalPrice, item.product.currency)}
+                </p>
+              )}
             </div>
 
             {/* Quantity Controls */}
@@ -104,14 +108,16 @@ function CartPage() {
             </div>
 
             {/* Price */}
-            <div className="hidden sm:block text-right min-w-[80px] shrink-0">
-              <p className="text-sm font-semibold text-text">
-                {formatCurrency(item.totalPrice, item.product.currency)}
-              </p>
-              <p className="text-xs text-text-muted">
-                {formatCurrency(item.unitPrice, item.product.currency)} / unit
-              </p>
-            </div>
+            {showPrices && (
+              <div className="hidden sm:block text-right min-w-[80px] shrink-0">
+                <p className="text-sm font-semibold text-text">
+                  {formatCurrency(item.totalPrice, item.product.currency)}
+                </p>
+                <p className="text-xs text-text-muted">
+                  {formatCurrency(item.unitPrice, item.product.currency)} / unit
+                </p>
+              </div>
+            )}
 
             {/* Remove */}
             <button
@@ -126,20 +132,22 @@ function CartPage() {
       </div>
 
       {/* Summary */}
-      <div className="rounded-lg border border-border bg-surface p-4 space-y-3">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-text-muted">Subtotal</span>
-          <span className="font-medium text-text">{formatCurrency(cart?.subtotal || 0)}</span>
+      {showPrices && (
+        <div className="rounded-lg border border-border bg-surface p-4 space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-text-muted">Subtotal</span>
+            <span className="font-medium text-text">{formatCurrency(cart?.subtotal || 0)}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-text-muted">Tax (10%)</span>
+            <span className="font-medium text-text">{formatCurrency(cart?.tax || 0)}</span>
+          </div>
+          <div className="border-t border-border pt-3 flex items-center justify-between">
+            <span className="text-base font-semibold text-text">Total</span>
+            <span className="text-xl font-semibold text-text">{formatCurrency(cart?.total || 0)}</span>
+          </div>
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-text-muted">Tax (10%)</span>
-          <span className="font-medium text-text">{formatCurrency(cart?.tax || 0)}</span>
-        </div>
-        <div className="border-t border-border pt-3 flex items-center justify-between">
-          <span className="text-base font-semibold text-text">Total</span>
-          <span className="text-xl font-semibold text-text">{formatCurrency(cart?.total || 0)}</span>
-        </div>
-      </div>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3">

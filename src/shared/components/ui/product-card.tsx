@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { cn } from '@/shared/lib/utils'
 import { formatCurrency } from '@/core/utils/helpers'
+import { useUiStore } from '@/presentation/stores/ui-store'
 import { Badge } from '@/shared/components/ui/badge'
 import type { Product } from '@/domain/entities'
 import { Plus, AlertCircle } from 'lucide-react'
@@ -22,6 +23,7 @@ function getStockStatus(product: Product) {
 const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
   ({ className, product, onAddToCart, onView, compact = false, ...props }, ref) => {
     const [quantity, setQuantity] = React.useState(product.minOrderQuantity)
+    const showPrices = useUiStore((s) => s.showPrices)
     const stock = getStockStatus(product)
     const isOutOfStock = product.stock === 0
 
@@ -66,12 +68,14 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
           </button>
 
           <div className="mt-auto pt-2">
-            <div className="flex items-baseline gap-1">
-              <span className={cn('font-semibold text-text', compact ? 'text-sm' : 'text-base')}>
-                {formatCurrency(product.price, product.currency)}
-              </span>
-              <span className="text-xs text-text-muted">/ unit</span>
-            </div>
+            {showPrices && (
+              <div className="flex items-baseline gap-1">
+                <span className={cn('font-semibold text-text', compact ? 'text-sm' : 'text-base')}>
+                  {formatCurrency(product.price, product.currency)}
+                </span>
+                <span className="text-xs text-text-muted">/ unit</span>
+              </div>
+            )}
 
             {!compact && (
               <div className="mt-1 flex items-center gap-2 text-xs text-text-muted min-w-0">
